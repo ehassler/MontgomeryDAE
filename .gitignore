@@ -35,6 +35,6 @@ vignettes/*.pdf
 # Custom
 /Books
 /SupplementalMaterials
-
+/MontgomeryDAE
 .Rproj.user
-inst/doc
+

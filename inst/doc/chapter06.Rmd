@@ -1,0 +1,478 @@
+---
+title: "2^k^ Factorial Design"
+output: rmarkdown::html_vignette
+bibliography: bibliography.bib
+vignette: >
+  %\VignetteIndexEntry{Chapter 06 - Two-Level Factorial Designs}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+source('_format.R')
+```
+
+
+
+
+We can easily construct any factorial using the `expand.grid` function from R:
+```{r}
+expand.grid('A'=c(-1,1), 'B'=c(-1, 1), 'C'=c(-1, 1))
+```
+
+\noindent For an arbitrary $k$ we can use `lapply` to return the correct number of `c(-1,1)` values, and then use `do.call` to use those as an argument for `expand.grid`:
+```{r}
+fac2 <- function(k){
+	as.data.frame(do.call(
+		expand.grid,
+		lapply(
+			1:k,
+			function(.){
+				c(-1,1)
+			}
+		)
+	))
+}
+
+fac2(4)
+```
+
+
+-------------
+
+# Section 6.2
+
+
+Section 6.2 describes an experiment where the experimenter seeks to optimize yield by varying reactant concentration (`A`) and catalyst amount (`B`).  I transcribed the data given in Figure 6.1.
+```{r}
+model <- aov(Yield ~ A*B, data=Figure6.1)
+summary(model)
+```
+
+\noindent Table 6.2 gives the signs for calculating the effects. Here we replicate 3 times as in Figure 6.1. The `model.matrix` function shows us what is actually going into the linear model.
+```{r}
+model.matrix(~A*B, data=Figure6.1)
+```
+
+\noindent Diagnostic plots for the model are given below.
+```{r fig.align='center', fig.width=8, fig.height=4}
+model <- lm(Yield ~ A*B, data=Figure6.1)
+
+op <- par(mfrow=c(1,2))
+qqnorm(resid(model), main='Normal Probability Plot')
+qqline(resid(model), col='orange')
+plot(x=predict(model), y=resid(model), main='Fitted vs. Residual')
+par(op)
+```
+
+Figure 6.3 in the text contains a contour plot of the response surface.  First, let's model this as linear regression.  Note that the text uses a _first order_ model so it only contains main effects.
+```{r}
+model <- lm(Yield ~ A + B, data=Figure6.1)
+summary(model)
+```
+
+\noindent Next, we plot the design points and show the contour plot.
+```{r fig.align='center', fig.width=5, fig.height=5}
+plot(x=Figure6.1$A, y=Figure6.1$B, main='Contours for Quadratic Model', pch=19)
+x <- seq(from=-1, to=1, length.out=100)
+y <- seq(from=-1, to=1, length.out=100)
+df <- expand.grid('A'=x, 'B'=y)
+z <- matrix(predict(model, df), nrow=length(x))
+contour(x=x, y=y, z=z, add=TRUE)
+```
+
+
+
+------
+
+
+
+# Example 6.1 - Plasma Etching
+
+A $2^3$ factorial design was executed to observe the effect of the gap between electrodes, gas flow, and RF-power on a plasma etching tool's etch rate.  The data is in Table 6.4.  Compare the ANOVA table of Table 6.6 to the following.
+```{r}
+model <- aov(EtchRate ~ Gap * Flow * Power, data=Table6.4)
+summary(model)
+```
+\noindent The example also gives effect estimates.  We can find the coefficients using the `coef` function. Recall that the effect size is twice the parameter estimate, so the effects are:
+```{r}
+2*coef(model)[-1]
+```
+
+
+
+------
+
+
+
+# Example 6.2 - Filtration Rate
+
+In Example 6.2 the filtration rate of a chemical process is studied through a $2^4$ factorial design varying temperature, pressure, concentration of formaldehyde, and stirring rate.  Since this is a saturated design we don't have an estimate of error and can't use the regular `aov` procedure.  Doing so results simply in the partition of the sums of squares:
+```{r}
+model <- aov(Filtration ~ Temperature * Pressure * Formaldehyde * StirringRate, data=Table6.10)
+summary(model)
+```
+
+\noindent Instead we can create a normal probability plot based on the effects:
+```{r}
+df <- Table6.10
+colnames(df) <- c('A', 'B', 'C', 'D', 'Filtration', 'Block')
+X <- model.matrix(~ -1 + A*B*C*D, data=df)
+effects <- apply(X, 2, function(w){ sum((w*df$Filtration) / (0.5 * dim(df)[1])) })
+names(effects) <- colnames(X)
+effects
+```
+
+
+\noindent Plotting these we get
+```{r fig.align='center', fig.width=5, fig.height=5}
+locs <- qqnorm(effects, main='Normal Probability Plot')
+qqline(effects, col='orange')
+ix <- c(1,3,4,6,8)
+text(x=locs$x[ix], y=locs$y[ix], labels=names(effects[ix]), pos=c(2, 4, 4, 4, 4))
+```
+\noindent If you compare this plot to the output in Figure 6.11 you'll note that the line in the text better traces the central points than R's `qqline`.  This is because the `qqline` procedure is geared towards an overall normality assumption, whereas the line in Figure 6.11 is using a method that focuses on the interior points for establishing the variance of the distribution.  
+
+
+When the design is saturated, i.e. when there are no degrees of freedom for error, then the `halfnormal` function from package `DoE.base` [@DoEbase] will construct a normal probability plot and label effects based on Lenth's pseudo-p-value approach.
+```{r message=FALSE, fig.align='center', fig.width=5, fig.height=5}
+library(DoE.base)
+
+Fo <- Table6.10$Formaldehyde
+Te <- Table6.10$Temperature
+St <- Table6.10$StirringRate
+Pr <- Table6.10$Pressure
+Fi <- Table6.10$Filtration
+model <- aov(Fi ~ Te * Pr * Fo * St, data=Table6.10)
+vals <- halfnormal(model, alpha=0.1)
+```
+
+\noindent The returned object from `halfnormal` is a list with `signif` containing those factors that were significant at the $\alpha$ given.
+```{r}
+print(vals$signif)
+```
+
+\noindent Next, we construct the contour plots of Figure 6.14.
+```{r fig.align='center', fig.width=8, fig.height=4}
+op <- par(mfrow=c(1,2))
+model <- lm(Filtration ~ A * C * D, data=df)
+
+# Temperature (A) vs. Concentration (C)
+plot(x=df$A, y=df$C, pch=19, xlab='Temperature', ylab='Concentration')
+x <- seq(from=-1, to=1, length.out=100)
+y <- seq(from=-1, to=1, length.out=100)
+pre.z <- expand.grid('A'=x, 'C'=y)
+pre.z[,'D'] <- rep(1, 100)
+z <- matrix(predict(model, pre.z), nrow=length(x))
+contour(x=x, y=y, z=z, add=TRUE)
+
+# Concentration (C) vs. Stirring Rate (D)
+plot(x=df$C, y=df$D, pch=19, xlab='Concentration', ylab='Stirring Rate')
+x <- seq(from=-1, to=1, length.out=100)
+y <- seq(from=-1, to=1, length.out=100)
+pre.z <- expand.grid('C'=x, 'D'=y)
+pre.z[,'A'] <- rep(1, 100)
+z <- matrix(predict(model, pre.z), nrow=length(x))
+contour(x=x, y=y, z=z, add=TRUE)
+
+par(op)
+```
+
+\noindent Compare Figure 6.18, where an outlier is removed, to the the following.
+```{r message=FALSE, fig.align='center', fig.width=5, fig.height=5}
+model <- aov(Filtration ~ A * C * D, data=df)
+vals <- halfnormal(model)
+print(vals$signif)
+```
+
+
+
+------
+
+
+
+
+# Example 6.3 - Data Transformation in a Factorial Design
+
+
+
+Example 6.3 describes an experiment where a $2^4$ factorial design was used to study the advance rate of a drill as a function of load, flow rate, rotation speed, and the type of drilling mud being used.  The data is stored in `Example6.3`.  First, we fit a regression model and then examine the half-normal probability plot.
+```{r fig.align='center', fig.width=5, fig.height=5, message=FALSE}
+model <- lm(DrillRate ~ .*.*.*., data=Example6.3)
+vals <- halfnormal(model)
+print(vals$signif)
+```
+
+\noindent With `FlowRate`, `RotationalSpeed`, and `Mud` main effects all appearing significant, we examine the $2^3$ factorial replicated twice that's left when we ignore `Load`. 
+```{r}
+model2 <- aov(DrillRate ~ Mud + RotationalSpeed + FlowRate + FlowRate:Mud + FlowRate:RotationalSpeed, data=Example6.3)
+summary(model2)
+```
+\noindent Next, let's examine the predicted versus residual plot.
+```{r fig.align='center', fig.width=5, fig.height=5}
+plot(predict(model2), resid(model2))
+```
+\noindent The diagnostic plot shows severely unequal variance.  As the text suggests, let's look at the logarithm of `DrillRate`.
+```{r fig.align='center', fig.width=5, fig.height=5, message=FALSE}
+df <- Example6.3
+df[,'DrillRate'] <- log(df[,'DrillRate'])
+model3 <- lm(DrillRate ~ .*.*.*., data=df)
+vals <- halfnormal(model3)
+print(vals$signif)
+```
+\noindent Again we find the three main effects to be active.  We examine the ANOVA table of the reduced model and find that none of the interaction effects seem to be active.
+```{r}
+model4 <- lm(DrillRate ~ FlowRate * RotationalSpeed * Mud, data=df)
+anova(model4)
+```
+
+\noindent We fit the main-effects-only model and check for normality of the residuals.
+
+```{r fig.align='center', fig.width=5, fig.height=5}
+model4 <- lm(DrillRate ~ FlowRate + RotationalSpeed + Mud, data=df)
+qqnorm(resid(model4))
+qqline(resid(model4), col='orange')
+```
+
+
+
+------
+
+
+
+# Example 6.4 - Location and Dispersion Effects in an Unreplicated Factorial
+
+
+The experiment in Example 6.4 seeks to minimize the number of defects by controlling the temperature, clamp time, resin flow, and closing time in a panel extruder.  There's two ways to improve the panel quality.  First, we can decrease the mean number of defects.  Second, we can reduce the variability of the number of defects.  We begin with the mean defects.
+```{r fig.align='center', fig.width=5, fig.height=5, echo=FALSE, message=FALSE}
+model <- lm(Defects ~ .*.*.*., data=Example6.4)
+halfnormal(model)$signif
+```
+\noindent Only two of the main effects are active, so we examine the projection of the original $2^4$ design down to a $2^2$.
+```{r}
+model2 <- lm(Defects ~ Temperature * ResinFlow, data=Example6.4)
+anova(model2)
+```
+
+\noindent The interaction effect is not significant so we proceed with the main-effects only model. We present the residual as a function of clamp-time below.
+```{r fig.align='center', fig.width=5, fig.height=5}
+model2 <- lm(Defects ~ Temperature + ResinFlow, data=Example6.4)
+plot(Example6.4$ClampTime, resid(model2))
+```
+\noindent This suggests that the assumption of equal variance is incorrect, but also that minimizing `ClampTime` could reduce variability.  Let us examine this idea further by calculating the dispersion effect in Example 6.4.
+
+```{r fig.align='center', fig.width=5, fig.height=5, message=FALSE}
+ix <- Example6.4$ClampTime == 1
+X <- model.matrix(Defects ~ -1 + . * . * . * ., data=Example6.4)
+Fi.star <- apply(
+	X,
+	2,
+	function(w){
+		log(
+			sd(resid(model2)[w == 1])^2 
+			/ 
+			sd(resid(model2)[w != 1])^2
+		)
+	}
+)
+vals <- halfnormal(Fi.star)
+```
+
+\noindent Indeed, `ClampTime` has a strong effect on variability.
+
+
+------
+
+
+
+
+# Example 6.5 - Duplicate Measurements on the Response
+
+
+In this experiment engineers stacked four wafers in a vertical oxidation furnace and examined the effect of temperature, time, pressure, and gas flow  on the oxide thinness of the wafer.  Note that since the wafers were all exposed at the same time they don't count as separate runs, and are instead examples of repeated measurements.  We begin by examining the sample variance of the wafers in a run.
+```{r}
+df <- aggregate(OxideThickness ~ ., data=Table6.18, FUN=mean)
+df[,'SampleVariance'] <- aggregate(OxideThickness ~ ., data=Table6.18, FUN=var)[,'OxideThickness']
+```
+```{r echo=FALSE}
+kable(df) %>% kable_styling()
+```
+
+\noindent Next, we partition the effects and sums of squares for the mean oxide thickness over the four wafers.
+```{r echo=TRUE, message=FALSE}
+model <- lm(OxideThickness ~ Temperature * Time * Pressure * GasFlow, data=df)
+model.ss <- anova(model)[['Sum Sq']]
+effect.estimates <- data.frame(
+	'EffectEstimate'=2 * coef(model)[-1],
+	'SumOfSquares'=model.ss[-1],
+	'Contribution'=sprintf('%0.2f%%', 100*model.ss[-1]/sum(model.ss[-1]))
+)
+```
+```{r echo=FALSE}
+kable(effect.estimates) %>% kable_styling(font_size=10)
+```
+
+\noindent Examining the half-normal probability plot we find `Temperature`, `Time`, `Pressure`, and the interactions of `Temperature` with `Time` and `Pressure` to be significant.
+
+```{r fig.align='center', fig.width=5, fig.height=5, message=FALSE}
+vals <- halfnormal(model)
+print(vals$signif)
+```
+
+
+\noindent Fitting this reduced model shows good significance.
+```{r}
+model2 <- lm(OxideThickness ~ Temperature + Time + Temperature:Time + Pressure + Temperature:Pressure, data=df)
+anova(model2)
+```
+
+\noindent The parameter estimates are given next.
+```{r}
+summary(model2)
+```
+
+
+\noindent Next, we plot the response surface.
+```{r fig.align='center', fig.width=8, fig.height=4}
+op <- par(mfrow=c(1,2))
+
+plot(x=df$Time, y=df$Temperature, pch=19, xlab='Time', ylab='Temperature', main='Pressure=-1')
+x <- seq(from=-1, to=1, length.out=100)
+y <- seq(from=-1, to=1, length.out=100)
+pre.z <- expand.grid('Time'=x, 'Temperature'=y)
+pre.z[,'Pressure'] <- rep(-1, 100)
+z <- matrix(predict(model2, pre.z), nrow=length(x))
+contour(x=x, y=y, z=z, add=TRUE)
+
+plot(x=df$Time, y=df$Temperature, pch=19, xlab='Time', ylab='Temperature', main='Pressure=1')
+x <- seq(from=-1, to=1, length.out=100)
+y <- seq(from=-1, to=1, length.out=100)
+pre.z <- expand.grid('Time'=x, 'Temperature'=y)
+pre.z[,'Pressure'] <- rep(1, 100)
+z <- matrix(predict(model2, pre.z), nrow=length(x))
+contour(x=x, y=y, z=z, add=TRUE)
+
+par(op)
+```
+
+
+\noindent Consider now the log transform of the sample variance at each set of four wafers.
+```{r fig.align='center', fig.width=5, fig.height=5, message=FALSE}
+Y <- log(df[,'SampleVariance'])
+model <- lm(Y ~ Temperature * Time * Pressure * GasFlow, data=df)
+vals <- halfnormal(model)
+print(vals$signif)
+```
+
+\noindent The text notes there are no strong effects but that factor `A` and `B:D` are largest, so we fit that model.
+
+```{r}
+model <- lm(Y ~ Temperature + Time + GasFlow + Time:GasFlow, data=df)
+summary(model)
+```
+
+\noindent Next, we present the contour plot of this surface.
+
+```{r fig.align='center', fig.width=5, fig.height=5}
+plot(x=df$Time, y=df$Temperature, pch=19, xlab='Time', ylab='Temperature', main='GasFlow=+1')
+x <- seq(from=-1, to=1, length.out=100)
+y <- seq(from=-1, to=1, length.out=100)
+pre.z <- expand.grid('Time'=x, 'Temperature'=y)
+pre.z[,'GasFlow'] <- rep(1, 100)
+z <- matrix(predict(model, pre.z), nrow=length(x))
+contour(x=x, y=y, z=exp(z), add=TRUE)
+```
+
+
+
+
+------
+
+
+
+# Example 6.6 - Credit Card Marketing
+
+An experiment to increase direct mail sales was undertaken by a financial services company.  They examined varying the annual fee, the account-opening fee, the initial interest rate, and the long term interest rate in a $2^4$ design.  The half-normal plot of effects is presented next.
+
+```{r fig.align='center', fig.width=8, fig.height=6, message=FALSE}
+model <- lm(ResponseRate ~ .*.*.*., data=Table6.22)
+vals <- halfnormal(model, alpha=0.1)
+print(vals$signif)
+```
+
+\noindent Putting these active effects into a regression model we find the coefficient estimates:
+```{r}
+model <- lm(
+	ResponseRate ~ AnnualFee + AccountOpeningFee + InitialInterestRate + LongTermInterestRate + AnnualFee:AccountOpeningFee,
+	data=Table6.22
+)
+summary(model)
+```
+\noindent From this we could calculate the best combination.
+
+
+
+------
+
+
+
+
+# Example 6.7
+
+
+Recall the experiment  in Example 6.2.  In this example we need to add some center runs:
+```{r}
+str(Table6.10)
+```
+\noindent We add `NA` for the `Block` level , otherwise adding the center runs given in the example.
+```{r}
+Example6.7 <- rbind(
+	Table6.10,
+	c(0, 0, 0, 0, 73, NA),
+	c(0, 0, 0, 0, 75, NA),
+	c(0, 0, 0, 0, 66, NA),
+	c(0, 0, 0, 0, 69, NA)
+)
+model1 <- lm(Filtration ~ Temperature*Pressure*Formaldehyde*StirringRate, data=Example6.7)
+model2 <- lm(Filtration ~ Temperature*Pressure*Formaldehyde*StirringRate + I(Temperature^2) + I(Pressure^2) + I(Formaldehyde^2) + I(StirringRate^2), data=Example6.7)
+anova(model1, model2)
+```
+\noindent Above, the partial $F$-test  shows that a quadratic model doesn't add much to the quality of our model.
+
+Next we examine if quadratic effects help a reduced model.
+```{r}
+model1 <- lm(Filtration ~ Temperature + Formaldehyde + StirringRate + Temperature:Formaldehyde + Temperature:StirringRate, data=Example6.7)
+model2 <- lm(Filtration ~ Temperature + Formaldehyde + StirringRate + Temperature:Formaldehyde + Temperature:StirringRate + I(Temperature^2) + I(Formaldehyde^2) + I(StirringRate^2), data=Example6.7)
+anova(model1, model2)
+```
+
+
+
+
+------
+
+
+
+
+# Section 6.9 - Why We Work with Coded Design Variables
+
+Section 6.9 compares the regression model on the natural units to the coded units.  We begin with the natural units.
+```{r}
+model <- lm(V ~ I * R, data=Table6.25)
+summary(model)
+```
+
+\noindent In coded units this yields:
+
+```{r}
+model <- lm(V ~ x1 * x2, data=Table6.25)
+summary(model)
+```
+
+\noindent The coded unit version produced a model where all of the terms were significant, whereas the natural units model only found the interaction significant.  Note that both models have the same $R^2$ values and so are equally good fits.  But note how the standard error on the coefficients changes between the two formulations of the model.
+
+
+
+-----------------------
+
+# References

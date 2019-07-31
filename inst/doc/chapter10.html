@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+
+<title>Fitting Regression Models</title>
+
+<script>$(document).ready(function(){
+    if (typeof $('[data-toggle="tooltip"]').tooltip === 'function') {
+        $('[data-toggle="tooltip"]').tooltip();
+    }
+    if ($('[data-toggle="popover"]').popover === 'function') {
+        $('[data-toggle="popover"]').popover();
+    }
+});
+</script>
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#header {
+text-align: center;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Fitting Regression Models</h1>
+
+
+
+<div id="example-10.1" class="section level1">
+<h1>Example 10.1</h1>
+<p>The example investigates the relationship of reaction temperature and catalyst feed rate to the viscosity of a polymer. First, let’s do the regression through matrix operations. Define the <span class="math inline">\(X\)</span> matrix using the <code>model.matrix</code> command.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1">X &lt;-<span class="st"> </span><span class="kw">model.matrix</span>(<span class="op">~</span>ReactionTemperature <span class="op">+</span><span class="st"> </span>CatalystFeedRate, <span class="dt">data=</span>Table10<span class="fl">.2</span>)</a>
+<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw">print</span>(X)</a>
+<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="co">#    (Intercept) ReactionTemperature CatalystFeedRate</span></a>
+<a class="sourceLine" id="cb1-4" data-line-number="4"><span class="co"># 1            1                  80                8</span></a>
+<a class="sourceLine" id="cb1-5" data-line-number="5"><span class="co"># 2            1                  93                9</span></a>
+<a class="sourceLine" id="cb1-6" data-line-number="6"><span class="co"># 3            1                 100               10</span></a>
+<a class="sourceLine" id="cb1-7" data-line-number="7"><span class="co"># 4            1                  82               12</span></a>
+<a class="sourceLine" id="cb1-8" data-line-number="8"><span class="co"># 5            1                  90               11</span></a>
+<a class="sourceLine" id="cb1-9" data-line-number="9"><span class="co"># 6            1                  99                8</span></a>
+<a class="sourceLine" id="cb1-10" data-line-number="10"><span class="co"># 7            1                  81                8</span></a>
+<a class="sourceLine" id="cb1-11" data-line-number="11"><span class="co"># 8            1                  96               10</span></a>
+<a class="sourceLine" id="cb1-12" data-line-number="12"><span class="co"># 9            1                  94               12</span></a>
+<a class="sourceLine" id="cb1-13" data-line-number="13"><span class="co"># 10           1                  93               11</span></a>
+<a class="sourceLine" id="cb1-14" data-line-number="14"><span class="co"># 11           1                  97               13</span></a>
+<a class="sourceLine" id="cb1-15" data-line-number="15"><span class="co"># 12           1                  95               11</span></a>
+<a class="sourceLine" id="cb1-16" data-line-number="16"><span class="co"># 13           1                 100                8</span></a>
+<a class="sourceLine" id="cb1-17" data-line-number="17"><span class="co"># 14           1                  85               12</span></a>
+<a class="sourceLine" id="cb1-18" data-line-number="18"><span class="co"># 15           1                  86                9</span></a>
+<a class="sourceLine" id="cb1-19" data-line-number="19"><span class="co"># 16           1                  87               12</span></a>
+<a class="sourceLine" id="cb1-20" data-line-number="20"><span class="co"># attr(,&quot;assign&quot;)</span></a>
+<a class="sourceLine" id="cb1-21" data-line-number="21"><span class="co"># [1] 0 1 2</span></a></code></pre></div>
+<p>The response <span class="math inline">\(y\)</span> is just the <code>Viscosity</code> column.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1">y &lt;-<span class="st"> </span>Table10<span class="fl">.2</span><span class="op">$</span>Viscosity</a>
+<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="kw">print</span>(y)</a>
+<a class="sourceLine" id="cb2-3" data-line-number="3"><span class="co">#  [1] 2256 2340 2426 2293 2330 2368 2250 2409 2364 2379 2440 2364 2404 2317</span></a>
+<a class="sourceLine" id="cb2-4" data-line-number="4"><span class="co"># [15] 2309 2328</span></a></code></pre></div>
+<p>Now we solve <span class="math inline">\((X^\mathrm{T} X)^{-1} X^\mathrm{T} y\)</span>. We can find the inverse <span class="math inline">\((X^\mathrm{T} X)^{-1}\)</span> with <code>solve(t(X) %*% X)</code> and then multiply by <span class="math inline">\(X^\mathrm{T} y\)</span>, but it’s numerically more stable to supply <span class="math inline">\(X^\mathrm{T} y\)</span> as the second argument to <code>solve</code>:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">beta.hat &lt;-<span class="st"> </span><span class="kw">solve</span>(<span class="kw">t</span>(X) <span class="op">%*%</span><span class="st"> </span>X, <span class="kw">t</span>(X) <span class="op">%*%</span><span class="st"> </span>y)</a>
+<a class="sourceLine" id="cb3-2" data-line-number="2"><span class="kw">print</span>(beta.hat)</a>
+<a class="sourceLine" id="cb3-3" data-line-number="3"><span class="co">#                            [,1]</span></a>
+<a class="sourceLine" id="cb3-4" data-line-number="4"><span class="co"># (Intercept)         1566.077771</span></a>
+<a class="sourceLine" id="cb3-5" data-line-number="5"><span class="co"># ReactionTemperature    7.621290</span></a>
+<a class="sourceLine" id="cb3-6" data-line-number="6"><span class="co"># CatalystFeedRate       8.584846</span></a></code></pre></div>
+<p>Now, to do this using <code>lm</code> is far simpler:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1">model &lt;-<span class="st"> </span><span class="kw">lm</span>(Viscosity <span class="op">~</span><span class="st"> </span>ReactionTemperature <span class="op">+</span><span class="st"> </span>CatalystFeedRate, <span class="dt">data=</span>Table10<span class="fl">.2</span>)</a>
+<a class="sourceLine" id="cb4-2" data-line-number="2"><span class="kw">print</span>(<span class="kw">summary</span>(model))</a>
+<a class="sourceLine" id="cb4-3" data-line-number="3"><span class="co"># </span></a>
+<a class="sourceLine" id="cb4-4" data-line-number="4"><span class="co"># Call:</span></a>
+<a class="sourceLine" id="cb4-5" data-line-number="5"><span class="co"># lm.default(formula = Viscosity ~ ReactionTemperature + CatalystFeedRate, </span></a>
+<a class="sourceLine" id="cb4-6" data-line-number="6"><span class="co">#     data = Table10.2)</span></a>
+<a class="sourceLine" id="cb4-7" data-line-number="7"><span class="co"># </span></a>
+<a class="sourceLine" id="cb4-8" data-line-number="8"><span class="co"># Residuals:</span></a>
+<a class="sourceLine" id="cb4-9" data-line-number="9"><span class="co">#      Min       1Q   Median       3Q      Max </span></a>
+<a class="sourceLine" id="cb4-10" data-line-number="10"><span class="co"># -21.4972 -13.1978  -0.4736  10.5558  25.4299 </span></a>
+<a class="sourceLine" id="cb4-11" data-line-number="11"><span class="co"># </span></a>
+<a class="sourceLine" id="cb4-12" data-line-number="12"><span class="co"># Coefficients:</span></a>
+<a class="sourceLine" id="cb4-13" data-line-number="13"><span class="co">#                      Estimate Std. Error t value Pr(&gt;|t|)    </span></a>
+<a class="sourceLine" id="cb4-14" data-line-number="14"><span class="co"># (Intercept)         1566.0778    61.5918   25.43 1.80e-12 ***</span></a>
+<a class="sourceLine" id="cb4-15" data-line-number="15"><span class="co"># ReactionTemperature    7.6213     0.6184   12.32 1.52e-08 ***</span></a>
+<a class="sourceLine" id="cb4-16" data-line-number="16"><span class="co"># CatalystFeedRate       8.5848     2.4387    3.52  0.00376 ** </span></a>
+<a class="sourceLine" id="cb4-17" data-line-number="17"><span class="co"># ---</span></a>
+<a class="sourceLine" id="cb4-18" data-line-number="18"><span class="co"># Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></a>
+<a class="sourceLine" id="cb4-19" data-line-number="19"><span class="co"># </span></a>
+<a class="sourceLine" id="cb4-20" data-line-number="20"><span class="co"># Residual standard error: 16.36 on 13 degrees of freedom</span></a>
+<a class="sourceLine" id="cb4-21" data-line-number="21"><span class="co"># Multiple R-squared:  0.927,   Adjusted R-squared:  0.9157 </span></a>
+<a class="sourceLine" id="cb4-22" data-line-number="22"><span class="co"># F-statistic:  82.5 on 2 and 13 DF,  p-value: 4.1e-08</span></a></code></pre></div>
+<p>Table 10.3 gives many types of residuals and diagnostic measures, many of which we’ll create below.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1">Table10<span class="fl">.3</span> &lt;-<span class="st"> </span><span class="kw">data.frame</span>(</a>
+<a class="sourceLine" id="cb5-2" data-line-number="2">    <span class="st">'y'</span>=Table10<span class="fl">.2</span><span class="op">$</span>Viscosity,</a>
+<a class="sourceLine" id="cb5-3" data-line-number="3">    <span class="st">'Predicted'</span>=<span class="kw">predict</span>(model),</a>
+<a class="sourceLine" id="cb5-4" data-line-number="4">    <span class="st">'Residual'</span>=<span class="kw">resid</span>(model),</a>
+<a class="sourceLine" id="cb5-5" data-line-number="5">    <span class="st">'hii'</span>=<span class="kw">hatvalues</span>(model),</a>
+<a class="sourceLine" id="cb5-6" data-line-number="6">    <span class="st">'StudentizedResids'</span>=<span class="kw">rstudent</span>(model),</a>
+<a class="sourceLine" id="cb5-7" data-line-number="7">    <span class="st">'CooksD'</span>=<span class="kw">cooks.distance</span>(model)</a>
+<a class="sourceLine" id="cb5-8" data-line-number="8">)</a></code></pre></div>
+<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:right;">
+y
+</th>
+<th style="text-align:right;">
+Predicted
+</th>
+<th style="text-align:right;">
+Residual
+</th>
+<th style="text-align:right;">
+hii
+</th>
+<th style="text-align:right;">
+StudentizedResids
+</th>
+<th style="text-align:right;">
+CooksD
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+2256
+</td>
+<td style="text-align:right;">
+2244.460
+</td>
+<td style="text-align:right;">
+11.5402553
+</td>
+<td style="text-align:right;">
+0.3495069
+</td>
+<td style="text-align:right;">
+0.8662386
+</td>
+<td style="text-align:right;">
+0.1370211
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2340
+</td>
+<td style="text-align:right;">
+2352.121
+</td>
+<td style="text-align:right;">
+-12.1213615
+</td>
+<td style="text-align:right;">
+0.1024725
+</td>
+<td style="text-align:right;">
+-0.7697800
+</td>
+<td style="text-align:right;">
+0.0232810
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2426
+</td>
+<td style="text-align:right;">
+2414.055
+</td>
+<td style="text-align:right;">
+11.9447620
+</td>
+<td style="text-align:right;">
+0.1766710
+</td>
+<td style="text-align:right;">
+0.7931568
+</td>
+<td style="text-align:right;">
+0.0463190
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2293
+</td>
+<td style="text-align:right;">
+2294.042
+</td>
+<td style="text-align:right;">
+-1.0417084
+</td>
+<td style="text-align:right;">
+0.2510838
+</td>
+<td style="text-align:right;">
+-0.0707119
+</td>
+<td style="text-align:right;">
+0.0006051
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2330
+</td>
+<td style="text-align:right;">
+2346.427
+</td>
+<td style="text-align:right;">
+-16.4271831
+</td>
+<td style="text-align:right;">
+0.0768901
+</td>
+<td style="text-align:right;">
+-1.0492249
+</td>
+<td style="text-align:right;">
+0.0303303
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2368
+</td>
+<td style="text-align:right;">
+2389.264
+</td>
+<td style="text-align:right;">
+-21.2642561
+</td>
+<td style="text-align:right;">
+0.2653280
+</td>
+<td style="text-align:right;">
+-1.6060332
+</td>
+<td style="text-align:right;">
+0.2768744
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2250
+</td>
+<td style="text-align:right;">
+2252.081
+</td>
+<td style="text-align:right;">
+-2.0810347
+</td>
+<td style="text-align:right;">
+0.3193512
+</td>
+<td style="text-align:right;">
+-0.1482818
+</td>
+<td style="text-align:right;">
+0.0037185
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2409
+</td>
+<td style="text-align:right;">
+2383.570
+</td>
+<td style="text-align:right;">
+25.4299223
+</td>
+<td style="text-align:right;">
+0.0979706
+</td>
+<td style="text-align:right;">
+1.7648944
+</td>
+<td style="text-align:right;">
+0.0969908
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2364
+</td>
+<td style="text-align:right;">
+2385.497
+</td>
+<td style="text-align:right;">
+-21.4971893
+</td>
+<td style="text-align:right;">
+0.1418941
+</td>
+<td style="text-align:right;">
+-1.4825374
+</td>
+<td style="text-align:right;">
+0.1109258
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2379
+</td>
+<td style="text-align:right;">
+2369.291
+</td>
+<td style="text-align:right;">
+9.7089467
+</td>
+<td style="text-align:right;">
+0.0798914
+</td>
+<td style="text-align:right;">
+0.6034150
+</td>
+<td style="text-align:right;">
+0.0110803
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2440
+</td>
+<td style="text-align:right;">
+2416.946
+</td>
+<td style="text-align:right;">
+23.0540946
+</td>
+<td style="text-align:right;">
+0.2783574
+</td>
+<td style="text-align:right;">
+1.7952141
+</td>
+<td style="text-align:right;">
+0.3538676
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2364
+</td>
+<td style="text-align:right;">
+2384.534
+</td>
+<td style="text-align:right;">
+-20.5336335
+</td>
+<td style="text-align:right;">
+0.0961841
+</td>
+<td style="text-align:right;">
+-1.3632128
+</td>
+<td style="text-align:right;">
+0.0618388
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2404
+</td>
+<td style="text-align:right;">
+2396.886
+</td>
+<td style="text-align:right;">
+7.1144538
+</td>
+<td style="text-align:right;">
+0.2894812
+</td>
+<td style="text-align:right;">
+0.5008633
+</td>
+<td style="text-align:right;">
+0.0361525
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2317
+</td>
+<td style="text-align:right;">
+2316.906
+</td>
+<td style="text-align:right;">
+0.0944214
+</td>
+<td style="text-align:right;">
+0.1851984
+</td>
+<td style="text-align:right;">
+0.0061435
+</td>
+<td style="text-align:right;">
+0.0000031
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2309
+</td>
+<td style="text-align:right;">
+2298.772
+</td>
+<td style="text-align:right;">
+10.2276690
+</td>
+<td style="text-align:right;">
+0.1341527
+</td>
+<td style="text-align:right;">
+0.6570582
+</td>
+<td style="text-align:right;">
+0.0233161
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2328
+</td>
+<td style="text-align:right;">
+2332.148
+</td>
+<td style="text-align:right;">
+-4.1481587
+</td>
+<td style="text-align:right;">
+0.1555667
+</td>
+<td style="text-align:right;">
+-0.2659017
+</td>
+<td style="text-align:right;">
+0.0046761
+</td>
+</tr>
+</tbody>
+</table>
+<hr />
+</div>
+<div id="example-10.6" class="section level1">
+<h1>Example 10.6</h1>
+<p>Consider the viscosity data from Table 10.2. If we wish to test <span class="math inline">\(H_0: \beta_2 = 0\)</span> versus <span class="math inline">\(H_1: \beta_2 \ne 0\)</span> by partial <span class="math inline">\(F\)</span>-test we can use the <code>anova</code> function.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1">model01 &lt;-<span class="st"> </span><span class="kw">lm</span>(Viscosity <span class="op">~</span><span class="st"> </span>ReactionTemperature, <span class="dt">data=</span>Table10<span class="fl">.2</span>)</a>
+<a class="sourceLine" id="cb6-2" data-line-number="2">model012 &lt;-<span class="st"> </span><span class="kw">lm</span>(Viscosity <span class="op">~</span><span class="st"> </span>ReactionTemperature <span class="op">+</span><span class="st"> </span>CatalystFeedRate, <span class="dt">data=</span>Table10<span class="fl">.2</span>)</a>
+<a class="sourceLine" id="cb6-3" data-line-number="3"><span class="kw">print</span>(<span class="kw">anova</span>(model01, model012))</a>
+<a class="sourceLine" id="cb6-4" data-line-number="4"><span class="co"># Analysis of Variance Table</span></a>
+<a class="sourceLine" id="cb6-5" data-line-number="5"><span class="co"># </span></a>
+<a class="sourceLine" id="cb6-6" data-line-number="6"><span class="co"># Model 1: Viscosity ~ ReactionTemperature</span></a>
+<a class="sourceLine" id="cb6-7" data-line-number="7"><span class="co"># Model 2: Viscosity ~ ReactionTemperature + CatalystFeedRate</span></a>
+<a class="sourceLine" id="cb6-8" data-line-number="8"><span class="co">#   Res.Df    RSS Df Sum of Sq      F   Pr(&gt;F)   </span></a>
+<a class="sourceLine" id="cb6-9" data-line-number="9"><span class="co"># 1     14 6795.1                                </span></a>
+<a class="sourceLine" id="cb6-10" data-line-number="10"><span class="co"># 2     13 3478.9  1    3316.2 12.392 0.003765 **</span></a>
+<a class="sourceLine" id="cb6-11" data-line-number="11"><span class="co"># ---</span></a>
+<a class="sourceLine" id="cb6-12" data-line-number="12"><span class="co"># Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></a></code></pre></div>
+<hr />
+</div>
+<div id="example-10.7" class="section level1">
+<h1>Example 10.7</h1>
+<p>Parameter confidence intervals can be retrieved with the <code>confint</code> function.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1">model &lt;-<span class="st"> </span><span class="kw">lm</span>(Viscosity <span class="op">~</span><span class="st"> </span>ReactionTemperature <span class="op">+</span><span class="st"> </span>CatalystFeedRate, <span class="dt">data=</span>Table10<span class="fl">.2</span>)</a>
+<a class="sourceLine" id="cb7-2" data-line-number="2"><span class="kw">confint</span>(model)</a>
+<a class="sourceLine" id="cb7-3" data-line-number="3"><span class="co">#                           2.5 %      97.5 %</span></a>
+<a class="sourceLine" id="cb7-4" data-line-number="4"><span class="co"># (Intercept)         1433.016700 1699.138843</span></a>
+<a class="sourceLine" id="cb7-5" data-line-number="5"><span class="co"># ReactionTemperature    6.285254    8.957326</span></a>
+<a class="sourceLine" id="cb7-6" data-line-number="6"><span class="co"># CatalystFeedRate       3.316390   13.853302</span></a></code></pre></div>
+<p>We can also get other intervals. For example, the prediction interval for the response over <code>ReactionTemperature</code> at <code>CatalystFeedRate</code> set to 10.5 is given below.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1">x1 &lt;-<span class="st"> </span><span class="kw">seq</span>(<span class="dt">from=</span><span class="dv">80</span>, <span class="dt">to=</span><span class="dv">100</span>, <span class="dt">length.out=</span><span class="dv">100</span>)</a>
+<a class="sourceLine" id="cb8-2" data-line-number="2">x2 &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="fl">10.5</span>, <span class="dv">100</span>)</a>
+<a class="sourceLine" id="cb8-3" data-line-number="3">y &lt;-<span class="kw">predict</span>(model, <span class="dt">newdata=</span><span class="kw">data.frame</span>(<span class="st">'ReactionTemperature'</span>=x1, <span class="st">'CatalystFeedRate'</span>=x2), <span class="dt">interval=</span><span class="st">&quot;confidence&quot;</span>) </a>
+<a class="sourceLine" id="cb8-4" data-line-number="4"><span class="kw">plot</span>(x1, y[,<span class="dv">1</span>], <span class="dt">type=</span><span class="st">'l'</span>, <span class="dt">ylim=</span><span class="kw">c</span>(<span class="dv">2248</span>, <span class="dv">2434</span>), <span class="dt">main=</span><span class="st">'Prediction Interval'</span>, <span class="dt">xlab=</span><span class="st">'Reaction Temperature'</span>, <span class="dt">ylab=</span><span class="st">'Viscosity'</span>)</a>
+<a class="sourceLine" id="cb8-5" data-line-number="5"><span class="kw">lines</span>(x1, y[,<span class="dv">2</span>], <span class="dt">lty=</span><span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb8-6" data-line-number="6"><span class="kw">lines</span>(x1, y[,<span class="dv">3</span>], <span class="dt">lty=</span><span class="dv">2</span>)</a></code></pre></div>
+<p><img src="data:image/png;base64,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" style="display: block; margin: auto;" /></p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

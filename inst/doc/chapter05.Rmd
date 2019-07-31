@@ -1,0 +1,345 @@
+---
+title: "Introduction to Factorial Designs"
+output: rmarkdown::html_vignette
+bibliography: bibliography.bib
+vignette: >
+  %\VignetteIndexEntry{Chapter 05 - Introduction to Factorial Designs}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+source('_format.R')
+```
+
+
+# Example 5.1
+
+Example 5.1 examines how the effective life of batteries is affected by the material type (three levels) and the temperature (three levels).  First, let's check that the structure of the data in Table5.1 is appropriate.
+```{r}
+str(Table5.1)
+```
+\noindent Here, `Temperature` is numeric and not a factor, so we need to convert it before running the model.
+```{r message=FALSE}
+df <- Table5.1
+df$Temperature <- factor(df$Temperature)
+```
+\noindent Next, we use a partial $F$-test to check if the full model is better than the null model (having only an intercept term) using the `anova` function.
+```{r message=FALSE}
+null.model <- aov(BatteryLife~1, data=df)
+full.model <- aov(BatteryLife ~ MaterialType + Temperature + MaterialType:Temperature, data=df)
+anova(null.model, full.model)
+```
+\noindent We can compare any two models using the `anova` function in this way.  The ANOVA table for the full model is presented next.
+```{r}
+summary(full.model)
+```
+\noindent Here we see the interaction is significant even after controlling for `MaterialType` and `Temperature`.  
+
+What does this interaction look like?  We can plot it in two ways. The easier way is to use the built-in `interaction.plot` function.
+```{r fig.align='center', fig.width=6, fig.height=5}
+with(df, {
+	interaction.plot(Temperature, MaterialType, BatteryLife)
+})
+```
+
+\noindent With more work we can make a more colorful plot.
+```{r fig.align='center', fig.width=6, fig.height=5}
+af <- aggregate(
+	df$BatteryLife,
+	by=list(
+		'Temperature'=Table5.1$Temperature, 
+		'MaterialType'=df$MaterialType
+	),
+	FUN=mean
+)
+plot(
+	af[af[, 'MaterialType'] == 1, c('Temperature', 'x')],
+	type='o',
+	ylim=c(0,175),
+	col='orange',
+	pch=19
+)
+lines(
+	af[af[, 'MaterialType'] == 2, c('Temperature', 'x')],
+	type='o',
+	col='skyblue',
+	pch=19
+)
+lines(
+	af[af[, 'MaterialType'] == 3, c('Temperature', 'x')],
+	type='o',
+	col='green',
+	pch=19
+)
+legend(
+	'bottomleft',
+	legend=c('Material 1', 'Material 2', 'Material 3'),
+	col=c('orange', 'skyblue', 'green'),
+	lty=rep(1,3),
+	pch=rep(19,3)
+)
+```
+
+\noindent Next, let's check the model assumptions with diagnostic plots.  The normal probability plot and the fitted versus residual don't look too bad.
+
+```{r fig.align='center', fig.width=8, fig.height=4}
+op <- par(mfrow=c(1,2))
+qqnorm(resid(full.model), main='Normal Probability Plot')
+qqline(resid(full.model), col='orange')
+plot(x=predict(full.model), y=resid(full.model), main='Fitted vs. Residual')
+par(op)
+```
+
+\noindent Next, let's look at the residuals by each factor to check for model misspecification.
+
+```{r fig.align='center', fig.width=8, fig.height=4}
+op <- par(mfrow=c(1,2))
+plot(x=as.numeric(df$MaterialType), y=resid(full.model), main='MaterialType vs. Residual')
+plot(x=Table5.1$Temperature, y=resid(full.model), main='Temperature vs. Residual')
+par(op)
+```
+
+\noindent These plots also do not look too terribly troubling, either.
+
+
+------
+
+# Example 5.2
+
+Table 5.10 in the textbook gives the data for an experiment where the impurity present in a chemical product is measured as the pressure and temperature of the process are varied.  We use Tukey's non-additivity test to model this as $$
+y_{ij} = \mu + \tau_i + \beta_j + \gamma \tau_i \beta_j
+\quad
+\left\{
+\begin{array}{l}
+i=1,2,\ldots,a\\
+j = 1, 2, \ldots, b
+\end{array}
+\right.
+$$
+To do this we make use of the `tukey.1df` function from the `dae` package [@dae].
+```{r message=FALSE}
+library(dae)
+
+df <- Table5.10
+df[,'fTemperature'] <- factor(df$Temperature)
+df[,'fPressure'] <- factor(df$Pressure)
+model <- aov(Impurity ~ fTemperature + fPressure, data=df)
+tukey.1df(model, data=df)
+```
+\noindent Compare this to the output in Table 5.11.
+
+
+------
+
+# Example 5.3
+
+Table 5.13 contains fill height deviation data for a soft drink bottler.  This variation is potentially driven by the percent carbonation, the operating pressure of the filler, and the speed of the line.  Note that `Table5.13` is all numeric data so we must first convert it to factors.
+```{r}
+str(Table5.13)
+```
+
+\noindent Generating the factors, we arrive at the following model.
+```{r}
+with(Table5.13, {
+	A <- factor(PctCarbonation)
+	B <- factor(OperatingPressure)
+	C <- factor(LineSpeed)
+	model <- aov(FillHeightDeviation ~ A*B*C)
+	print(summary(model))
+})
+```
+\noindent Next, let's construct Figure 5.16.
+```{r fig.align='center', fig.width=7, fig.height=8}
+op <- par(mfrow=c(2,2))
+attach(Table5.13)
+levels <- list(
+	'Percent carbonation (A)'=PctCarbonation,
+	'Pressure (B)'=OperatingPressure,
+	'Line speed (C)'=LineSpeed
+)
+for(s in names(levels)){
+	df <- aggregate(
+		FillHeightDeviation,
+		by=list('A'=levels[[s]]),
+		FUN=mean
+	)
+	plot(df, type='o', pch=19, xlab=s, ylim=c(-2,8))
+}
+df <- aggregate(
+	FillHeightDeviation,
+	by=list('A'=PctCarbonation, 'B'=OperatingPressure),
+	FUN=mean
+)
+detach(Table5.13)
+
+plot(df[df[,'B'] == 25,c('A','x')], type='o', pch=19, col='orange', ylim=c(-2, 10), xlab='Interaction')
+lines(df[df[,'B'] == 30,c('A','x')], type='o', pch=19, col='lightblue')
+legend('topleft', legend=c('B=25','B=30'), lty=c(1,1), pch=c(19, 19), col=c('orange', 'lightblue'))
+par(op)
+```
+
+
+
+
+------
+
+# Example 5.4
+
+We return again the the battery life experiment of Example 5.1, and analyze the effect of treating temperature as a continuous factor with quadratic effects.  Note that we'll code the `Temperature` factor to be in $[-1, 1]$.
+```{r message=FALSE}
+df <- Table5.1
+df$Temperature <- (df$Temperature - 70) / 55
+contrasts(df$MaterialType) <- as.matrix(cbind(c(1,0,-1), c(0,1,-1)))
+model <- lm(BatteryLife ~ Temperature + MaterialType + I(Temperature^2) + Temperature:MaterialType + I(Temperature^2):MaterialType, data=df)
+anova(model)
+```
+
+\noindent Next, let's examine the coefficients of the regression model.
+```{r}
+summary(model)
+```
+
+\noindent We create the interaction plot next.
+```{r fig.align='center', fig.width=5, fig.height=5}
+temp <- seq(from=-1, to=1, length.out=100)
+y1 <- predict(model, data.frame('Temperature'=temp, 'MaterialType'=rep('1', 100)))
+y2 <- predict(model, data.frame('Temperature'=temp, 'MaterialType'=rep('2', 100)))
+y3 <- predict(model, data.frame('Temperature'=temp, 'MaterialType'=rep('3', 100)))
+plot(
+	x=df$Temperature, 
+	y=df$BatteryLife,
+	pch=19,
+	col=c('orange','lightblue','green')[as.numeric(df$MaterialType)],
+	xlab='Coded Temperature',
+	ylab='Battery Life'
+)
+lines(x=temp, y=y1, col='orange')
+lines(x=temp, y=y2, col='lightblue')
+lines(x=temp, y=y3, col='green')
+legend(
+	'topright',
+	legend=c('Material 1', 'Material 2', 'Material 3'),
+	col=c('orange', 'lightblue', 'green'),
+	lty=c(1, 1, 1)
+)
+```
+
+
+------
+
+# Example 5.5
+
+
+The tool life experiment of Example 5.5 examines how the life of a cutting tool is affected by the tool's cutting speed and the tool angle. We begin by fitting a regression model to produce the ANOVA table and coefficient estimates.
+```{r}
+df <- Table5.16
+A <- factor(df$TotalAngle)
+B <- factor(df$CuttingSpeed)
+model <- lm(ToolLife ~ A * B, data=df)
+print(anova(model))
+print(summary(model))
+```
+
+\noindent Examining the diagnostic plots we don't find evidence of severe problems.
+```{r fig.align='center', fig.width=8, fig.height=4}
+op <- par(mfrow=c(1,2))
+qqnorm(resid(model), main='Normal Probability Plot')
+qqline(resid(model), col='orange')
+plot(x=predict(model), y=resid(model), main='Fitted vs. Residual')
+par(op)
+```
+
+
+As the text states, since this model has quantitative factors at three levels each we could fit a second order model.  First, let's create a new data frame with the centered variables in it, and then fit the model.
+```{r}
+attach(Table5.16)
+df <- data.frame(
+	'ToolLife' = ToolLife,
+	'Angle'=TotalAngle,
+	'Speed'=CuttingSpeed,
+	'Angle.Angle'=(TotalAngle - 20)^2,
+	'Angle.Speed'=(TotalAngle - 20)*(CuttingSpeed-150),
+	'Speed.Speed'=(CuttingSpeed-150)^2,
+	'Angle.Angle.Speed'=(TotalAngle - 20)^2 * (CuttingSpeed-150),
+	'Speed.Speed.Angle'=(CuttingSpeed-150)^2 * (TotalAngle - 20),
+	'Angle.Speed.Angle.Speed'=(TotalAngle - 20)^2 * (CuttingSpeed-150)^2
+)
+detach(Table5.16)
+model2 <- lm(ToolLife ~ ., data=df)
+summary(model2)
+```
+
+\noindent Next, we construct a contour plot of the surface, with the design points shown as dots.
+```{r fig.align='center', fig.width=5, fig.height=5}
+plot(x=Table5.16$TotalAngle, y=Table5.16$CuttingSpeed, main='Contours for Example 5.5 Response Surface', pch=19)
+x <- seq(from=min(Table5.16$TotalAngle), to=max(Table5.16$TotalAngle), length.out=100)
+y <- seq(from=min(Table5.16$CuttingSpeed), to=max(Table5.16$CuttingSpeed), length.out=100)
+df <- expand.grid('Angle'=x, 'Speed'=y)
+df['Angle.Angle'] <- (df$Angle - 20)^2
+df['Angle.Speed'] <- (df$Angle - 20) * (df$Speed - 150)
+df['Speed.Speed'] <- (df$Speed - 150)^2
+df['Angle.Angle.Speed'] <- (df$Angle - 20)^2 * (df$Speed - 150)
+df['Speed.Speed.Angle'] <- (df$Speed - 150)^2 * (df$Angle - 20)
+df['Angle.Speed.Angle.Speed'] <- (df$Angle - 20)^2 * (df$Speed - 150)^2
+z <- matrix(predict(model2, df), nrow=length(x))
+contour(x=x, y=y, z=z, add=TRUE)
+```
+\noindent Compare this plot with Figure 5.19.
+
+
+The `rgl` package [@rgl] allows the creating of really slick 3-d visualizations with which you can directly interact. Try out the following code.
+```{r eval=FALSE}
+library(rgl)
+
+open3d()
+pallete <- topo.colors(255)
+colors <- pallete[as.numeric(cut(as.numeric(z), 255))]
+persp3d(
+	x, y, z, col=colors, 
+	xlab='ToolAngle', ylab='CuttingSpeed', zlab='ToolLife')
+```
+
+------
+
+# Example 5.6
+
+The experiment detailed in Table 5.24 from the textbook is an attempt to improve target detection on a radar scope over different amounts of background noise and "ground clutter".  First, we model `Intensity` based on `GroundClutter` and `FilterType` (and their interaction) and block on `Operator`.
+
+```{r}
+model <- aov(Intensity ~ Error(Operator) + GroundClutter * FilterType, data=Table5.21)
+summary(model)
+```
+
+\noindent Next, let's model these as random effects.
+
+```{r message=FALSE}
+library(lme4)
+library(lmerTest)
+model <- lmer(
+	Intensity ~ GroundClutter * FilterType + (1|Operator),
+	REML=TRUE,
+	data=Table5.21
+)
+print(summary(model))
+print(rand(model))
+```
+
+
+
+------
+
+# Section 5.6 Radar Detection as a Latin Square Design
+
+Later in Section 5.6, the analysis is run as a $3 \times 2$ Latin Square design, and the result of this analysis is given in Table 5.25.  Here, we modify our fixed-effects approach by adding `Day` into the list of error terms for blocking.
+```{r}
+model <- aov(Intensity ~ Error(Day + Operator) + GroundClutter * Filter, data=Table5.24)
+summary(model)
+```
+
+
+
+
+--------------------
+
+# References

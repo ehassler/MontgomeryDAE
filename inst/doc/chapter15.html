@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+
+<title>Other Design and Analysis Topics</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#header {
+text-align: center;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Other Design and Analysis Topics</h1>
+
+
+
+<div id="example-15.1---box-cox-transformation" class="section level1">
+<h1>Example 15.1 - Box-Cox Transformation</h1>
+<p>Using the data from Example3.5 we can find the Box-Cox transform of the response to make our data look more normally distributed.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">library</span>(MASS)</a>
+<a class="sourceLine" id="cb1-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb1-3" data-line-number="3">model &lt;-<span class="st"> </span><span class="kw">lm</span>(Observation <span class="op">~</span><span class="st"> </span>EstimationMethod, <span class="dt">data=</span>Example3<span class="fl">.5</span>)</a>
+<a class="sourceLine" id="cb1-4" data-line-number="4">vals &lt;-<span class="st"> </span><span class="kw">boxcox</span>(model)</a></code></pre></div>
+<p><img src="data:image/png;base64,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" style="display: block; margin: auto;" /></p>
+<p>The plot indicates that the 95% confidence interval doesn’t contain 0 (so no log transform), and that the best is somewhere between around 1/2 to 3/4. By assigning the value returned by <code>boxcox</code> to a variable we can find the peak:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1">best.lambda &lt;-<span class="st"> </span>vals<span class="op">$</span>x[<span class="kw">which.max</span>(vals<span class="op">$</span>y)]</a>
+<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="kw">print</span>(best.lambda)</a>
+<a class="sourceLine" id="cb2-3" data-line-number="3"><span class="co"># [1] 0.5454545</span></a></code></pre></div>
+<p>This suggests 0.5 is an appropriate value for <span class="math inline">\(\lambda\)</span>.</p>
+<hr />
+</div>
+<div id="example-15.2" class="section level1">
+<h1>Example 15.2</h1>
+<p>Recall the coupon redemption data from Table 15.1, where the number of coupons redeemed is out of 1000 customers. To fit a binomial GLM (logistic regression) we use the <code>glm</code> function and indicate the family is <code>binomial</code>. Note that the response won’t be a number, but will be two columns: the first column is the number of successes and the second is the number of failures.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">model &lt;-<span class="st"> </span><span class="kw">glm</span>(<span class="kw">cbind</span>(Coupons, <span class="kw">I</span>(<span class="dv">1000</span> <span class="op">-</span><span class="st"> </span>Coupons)) <span class="op">~</span><span class="st"> </span>(A <span class="op">+</span><span class="st"> </span>B <span class="op">+</span><span class="st"> </span>C)<span class="op">^</span><span class="dv">2</span>, <span class="dt">data=</span>Table15<span class="fl">.1</span>, <span class="dt">family=</span><span class="st">'binomial'</span>)</a>
+<a class="sourceLine" id="cb3-2" data-line-number="2"><span class="kw">print</span>(<span class="kw">summary</span>(model))</a>
+<a class="sourceLine" id="cb3-3" data-line-number="3"><span class="co"># </span></a>
+<a class="sourceLine" id="cb3-4" data-line-number="4"><span class="co"># Call:</span></a>
+<a class="sourceLine" id="cb3-5" data-line-number="5"><span class="co"># glm(formula = cbind(Coupons, I(1000 - Coupons)) ~ (A + B + C)^2, </span></a>
+<a class="sourceLine" id="cb3-6" data-line-number="6"><span class="co">#     family = &quot;binomial&quot;, data = Table15.1)</span></a>
+<a class="sourceLine" id="cb3-7" data-line-number="7"><span class="co"># </span></a>
+<a class="sourceLine" id="cb3-8" data-line-number="8"><span class="co"># Deviance Residuals: </span></a>
+<a class="sourceLine" id="cb3-9" data-line-number="9"><span class="co">#       1        2        3        4        5        6        7        8  </span></a>
+<a class="sourceLine" id="cb3-10" data-line-number="10"><span class="co">#  0.4723  -0.4307  -0.4228   0.3949  -0.4572   0.4166   0.4238  -0.3987  </span></a>
+<a class="sourceLine" id="cb3-11" data-line-number="11"><span class="co"># </span></a>
+<a class="sourceLine" id="cb3-12" data-line-number="12"><span class="co"># Coefficients:</span></a>
+<a class="sourceLine" id="cb3-13" data-line-number="13"><span class="co">#              Estimate Std. Error z value Pr(&gt;|z|)    </span></a>
+<a class="sourceLine" id="cb3-14" data-line-number="14"><span class="co"># (Intercept) -1.011545   0.025515 -39.645  &lt; 2e-16 ***</span></a>
+<a class="sourceLine" id="cb3-15" data-line-number="15"><span class="co"># A            0.169208   0.025509   6.633 3.28e-11 ***</span></a>
+<a class="sourceLine" id="cb3-16" data-line-number="16"><span class="co"># B            0.169622   0.025515   6.648 2.97e-11 ***</span></a>
+<a class="sourceLine" id="cb3-17" data-line-number="17"><span class="co"># C            0.023317   0.025510   0.914    0.361    </span></a>
+<a class="sourceLine" id="cb3-18" data-line-number="18"><span class="co"># A:B         -0.006285   0.025512  -0.246    0.805    </span></a>
+<a class="sourceLine" id="cb3-19" data-line-number="19"><span class="co"># A:C         -0.002773   0.025432  -0.109    0.913    </span></a>
+<a class="sourceLine" id="cb3-20" data-line-number="20"><span class="co"># B:C         -0.041020   0.025434  -1.613    0.107    </span></a>
+<a class="sourceLine" id="cb3-21" data-line-number="21"><span class="co"># ---</span></a>
+<a class="sourceLine" id="cb3-22" data-line-number="22"><span class="co"># Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></a>
+<a class="sourceLine" id="cb3-23" data-line-number="23"><span class="co"># </span></a>
+<a class="sourceLine" id="cb3-24" data-line-number="24"><span class="co"># (Dispersion parameter for binomial family taken to be 1)</span></a>
+<a class="sourceLine" id="cb3-25" data-line-number="25"><span class="co"># </span></a>
+<a class="sourceLine" id="cb3-26" data-line-number="26"><span class="co">#     Null deviance: 93.0238  on 7  degrees of freedom</span></a>
+<a class="sourceLine" id="cb3-27" data-line-number="27"><span class="co"># Residual deviance:  1.4645  on 1  degrees of freedom</span></a>
+<a class="sourceLine" id="cb3-28" data-line-number="28"><span class="co"># AIC: 72.286</span></a>
+<a class="sourceLine" id="cb3-29" data-line-number="29"><span class="co"># </span></a>
+<a class="sourceLine" id="cb3-30" data-line-number="30"><span class="co"># Number of Fisher Scoring iterations: 3</span></a></code></pre></div>
+<hr />
+</div>
+<div id="example-15.3---the-grill-defects-experiment" class="section level1">
+<h1>Example 15.3 - The Grill Defects Experiment</h1>
+<p>The grill defects experiment described in problem 8.51 is analyzed in the text using Poisson regression. First we retrieve the number of defects.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1">df &lt;-<span class="st"> </span>Problem8<span class="fl">.51</span>[,<span class="kw">c</span>(<span class="st">'A'</span>,<span class="st">'B'</span>,<span class="st">'C'</span>,<span class="st">'D'</span>,<span class="st">'E'</span>,<span class="st">'F'</span>,<span class="st">'G'</span>,<span class="st">'H'</span>,<span class="st">'J'</span>)]</a>
+<a class="sourceLine" id="cb4-2" data-line-number="2">df[,<span class="st">'Defects'</span>] &lt;-<span class="st"> </span><span class="kw">round</span>(Problem8<span class="fl">.51</span>[,<span class="st">'Sqrt'</span>]<span class="op">^</span><span class="dv">2</span>)</a></code></pre></div>
+<p>Next, we fit a poisson model.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1">model &lt;-<span class="st"> </span><span class="kw">glm</span>(Defects <span class="op">~</span><span class="st"> </span>D <span class="op">+</span><span class="st"> </span>F <span class="op">+</span><span class="st"> </span>B<span class="op">:</span>G, <span class="dt">data=</span>df, <span class="dt">family=</span><span class="st">'poisson'</span>)</a>
+<a class="sourceLine" id="cb5-2" data-line-number="2"><span class="kw">summary</span>(model)</a>
+<a class="sourceLine" id="cb5-3" data-line-number="3"><span class="co"># </span></a>
+<a class="sourceLine" id="cb5-4" data-line-number="4"><span class="co"># Call:</span></a>
+<a class="sourceLine" id="cb5-5" data-line-number="5"><span class="co"># glm(formula = Defects ~ D + F + B:G, family = &quot;poisson&quot;, data = df)</span></a>
+<a class="sourceLine" id="cb5-6" data-line-number="6"><span class="co"># </span></a>
+<a class="sourceLine" id="cb5-7" data-line-number="7"><span class="co"># Deviance Residuals: </span></a>
+<a class="sourceLine" id="cb5-8" data-line-number="8"><span class="co">#     Min       1Q   Median       3Q      Max  </span></a>
+<a class="sourceLine" id="cb5-9" data-line-number="9"><span class="co"># -3.5212  -0.6105   0.0113   0.7059   1.4691  </span></a>
+<a class="sourceLine" id="cb5-10" data-line-number="10"><span class="co"># </span></a>
+<a class="sourceLine" id="cb5-11" data-line-number="11"><span class="co"># Coefficients:</span></a>
+<a class="sourceLine" id="cb5-12" data-line-number="12"><span class="co">#             Estimate Std. Error z value Pr(&gt;|z|)    </span></a>
+<a class="sourceLine" id="cb5-13" data-line-number="13"><span class="co"># (Intercept)   1.1284     0.1734   6.508 7.60e-11 ***</span></a>
+<a class="sourceLine" id="cb5-14" data-line-number="14"><span class="co"># D            -0.8959     0.1126  -7.956 1.78e-15 ***</span></a>
+<a class="sourceLine" id="cb5-15" data-line-number="15"><span class="co"># F            -1.1757     0.1398  -8.407  &lt; 2e-16 ***</span></a>
+<a class="sourceLine" id="cb5-16" data-line-number="16"><span class="co"># B:G          -0.7370     0.1012  -7.283 3.28e-13 ***</span></a>
+<a class="sourceLine" id="cb5-17" data-line-number="17"><span class="co"># ---</span></a>
+<a class="sourceLine" id="cb5-18" data-line-number="18"><span class="co"># Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></a>
+<a class="sourceLine" id="cb5-19" data-line-number="19"><span class="co"># </span></a>
+<a class="sourceLine" id="cb5-20" data-line-number="20"><span class="co"># (Dispersion parameter for poisson family taken to be 1)</span></a>
+<a class="sourceLine" id="cb5-21" data-line-number="21"><span class="co"># </span></a>
+<a class="sourceLine" id="cb5-22" data-line-number="22"><span class="co">#     Null deviance: 313.161  on 15  degrees of freedom</span></a>
+<a class="sourceLine" id="cb5-23" data-line-number="23"><span class="co"># Residual deviance:  25.609  on 12  degrees of freedom</span></a>
+<a class="sourceLine" id="cb5-24" data-line-number="24"><span class="co"># AIC: 80.246</span></a>
+<a class="sourceLine" id="cb5-25" data-line-number="25"><span class="co"># </span></a>
+<a class="sourceLine" id="cb5-26" data-line-number="26"><span class="co"># Number of Fisher Scoring iterations: 5</span></a></code></pre></div>
+<p>Next, we generate approximate 95% confidence intervals around each observation.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1">response &lt;-<span class="st"> </span><span class="kw">predict</span>(model, <span class="dt">type=</span><span class="st">'response'</span>, <span class="dt">se.fit=</span><span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb6-2" data-line-number="2"><span class="dv">2</span> <span class="op">*</span><span class="st"> </span><span class="kw">qnorm</span>(<span class="fl">0.975</span>) <span class="op">*</span><span class="st"> </span>response<span class="op">$</span>se.fit</a>
+<a class="sourceLine" id="cb6-3" data-line-number="3"><span class="co">#          1          2          3          4          5          6 </span></a>
+<a class="sourceLine" id="cb6-4" data-line-number="4"><span class="co"># 19.3364693  8.6039941  1.3830047  5.2018322  1.3830047  5.2018322 </span></a>
+<a class="sourceLine" id="cb6-5" data-line-number="5"><span class="co">#          7          8          9         10         11         12 </span></a>
+<a class="sourceLine" id="cb6-6" data-line-number="6"><span class="co"># 19.3364693  8.6039941  1.0584072  0.2691856  2.0463419  7.1430108 </span></a>
+<a class="sourceLine" id="cb6-7" data-line-number="7"><span class="co">#         13         14         15         16 </span></a>
+<a class="sourceLine" id="cb6-8" data-line-number="8"><span class="co">#  2.0463419  7.1430108  1.0584072  0.2691856</span></a></code></pre></div>
+<hr />
+</div>
+<div id="example-15.4---the-worsted-yarn-experiment" class="section level1">
+<h1>Example 15.4 - The Worsted Yarn Experiment</h1>
+<p>Here we fit a Gamma GLM to the data. Note that <code>Gamma</code> is capitalized in the family argument, and that we pass <code>'log'</code> as the link function.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1">model &lt;-<span class="st"> </span><span class="kw">glm</span>(CyclesToFailure <span class="op">~</span><span class="st"> </span>x1 <span class="op">+</span><span class="st"> </span>x2 <span class="op">+</span><span class="st"> </span>x3, <span class="dt">data=</span>Table15<span class="fl">.4</span>, <span class="dt">family=</span><span class="kw">Gamma</span>(<span class="dt">link=</span><span class="st">'log'</span>))</a>
+<a class="sourceLine" id="cb7-2" data-line-number="2"><span class="kw">summary</span>(model)</a>
+<a class="sourceLine" id="cb7-3" data-line-number="3"><span class="co"># </span></a>
+<a class="sourceLine" id="cb7-4" data-line-number="4"><span class="co"># Call:</span></a>
+<a class="sourceLine" id="cb7-5" data-line-number="5"><span class="co"># glm(formula = CyclesToFailure ~ x1 + x2 + x3, family = Gamma(link = &quot;log&quot;), </span></a>
+<a class="sourceLine" id="cb7-6" data-line-number="6"><span class="co">#     data = Table15.4)</span></a>
+<a class="sourceLine" id="cb7-7" data-line-number="7"><span class="co"># </span></a>
+<a class="sourceLine" id="cb7-8" data-line-number="8"><span class="co"># Deviance Residuals: </span></a>
+<a class="sourceLine" id="cb7-9" data-line-number="9"><span class="co">#      Min        1Q    Median        3Q       Max  </span></a>
+<a class="sourceLine" id="cb7-10" data-line-number="10"><span class="co"># -0.43391  -0.11553  -0.00922   0.10260   0.25342  </span></a>
+<a class="sourceLine" id="cb7-11" data-line-number="11"><span class="co"># </span></a>
+<a class="sourceLine" id="cb7-12" data-line-number="12"><span class="co"># Coefficients:</span></a>
+<a class="sourceLine" id="cb7-13" data-line-number="13"><span class="co">#             Estimate Std. Error t value Pr(&gt;|t|)    </span></a>
+<a class="sourceLine" id="cb7-14" data-line-number="14"><span class="co"># (Intercept)  6.34891    0.03422 185.511  &lt; 2e-16 ***</span></a>
+<a class="sourceLine" id="cb7-15" data-line-number="15"><span class="co"># x1           0.84251    0.04192  20.100 4.34e-16 ***</span></a>
+<a class="sourceLine" id="cb7-16" data-line-number="16"><span class="co"># x2          -0.63132    0.04192 -15.062 2.10e-13 ***</span></a>
+<a class="sourceLine" id="cb7-17" data-line-number="17"><span class="co"># x3          -0.38513    0.04192  -9.188 3.68e-09 ***</span></a>
+<a class="sourceLine" id="cb7-18" data-line-number="18"><span class="co"># ---</span></a>
+<a class="sourceLine" id="cb7-19" data-line-number="19"><span class="co"># Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></a>
+<a class="sourceLine" id="cb7-20" data-line-number="20"><span class="co"># </span></a>
+<a class="sourceLine" id="cb7-21" data-line-number="21"><span class="co"># (Dispersion parameter for Gamma family taken to be 0.0316243)</span></a>
+<a class="sourceLine" id="cb7-22" data-line-number="22"><span class="co"># </span></a>
+<a class="sourceLine" id="cb7-23" data-line-number="23"><span class="co">#     Null deviance: 22.88613  on 26  degrees of freedom</span></a>
+<a class="sourceLine" id="cb7-24" data-line-number="24"><span class="co"># Residual deviance:  0.76939  on 23  degrees of freedom</span></a>
+<a class="sourceLine" id="cb7-25" data-line-number="25"><span class="co"># AIC: 332.76</span></a>
+<a class="sourceLine" id="cb7-26" data-line-number="26"><span class="co"># </span></a>
+<a class="sourceLine" id="cb7-27" data-line-number="27"><span class="co"># Number of Fisher Scoring iterations: 5</span></a></code></pre></div>
+<p>Next, we generate approximate 95% confidence intervals around each observation.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1">response &lt;-<span class="st"> </span><span class="kw">predict</span>(model, <span class="dt">type=</span><span class="st">'response'</span>, <span class="dt">se.fit=</span><span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb8-2" data-line-number="2"><span class="dv">2</span> <span class="op">*</span><span class="st"> </span><span class="kw">qnorm</span>(<span class="fl">0.975</span>) <span class="op">*</span><span class="st"> </span>response<span class="op">$</span>se.fit</a>
+<a class="sourceLine" id="cb8-3" data-line-number="3"><span class="co">#          1          2          3          4          5          6 </span></a>
+<a class="sourceLine" id="cb8-4" data-line-number="4"><span class="co">#  214.10607  124.22701   99.10732   97.11774   52.23685   44.95472 </span></a>
+<a class="sourceLine" id="cb8-5" data-line-number="5"><span class="co">#          7          8          9         10         11         12 </span></a>
+<a class="sourceLine" id="cb8-6" data-line-number="6"><span class="co">#   60.57185   35.14454   28.03804  424.00889  228.06223  196.26901 </span></a>
+<a class="sourceLine" id="cb8-7" data-line-number="7"><span class="co">#         13         14         15         16         17         18 </span></a>
+<a class="sourceLine" id="cb8-8" data-line-number="8"><span class="co">#  178.29366   76.71924   82.53016  119.95458   64.52013   55.52564 </span></a>
+<a class="sourceLine" id="cb8-9" data-line-number="9"><span class="co">#         19         20         21         22         23         24 </span></a>
+<a class="sourceLine" id="cb8-10" data-line-number="10"><span class="co"># 1154.57899  669.90110  534.44181  523.71285  281.69013  242.42087 </span></a>
+<a class="sourceLine" id="cb8-11" data-line-number="11"><span class="co">#         25         26         27 </span></a>
+<a class="sourceLine" id="cb8-12" data-line-number="12"><span class="co">#  326.63710  189.51891  151.19669</span></a></code></pre></div>
+<hr />
+</div>
+<div id="example-15.5" class="section level1">
+<h1>Example 15.5</h1>
+<p>Note that by placing <code>I(x - mean(x))</code> before <code>Machine</code> we cause machine to be adjusted by covariate.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1">model &lt;-<span class="st"> </span><span class="kw">aov</span>(y <span class="op">~</span><span class="st"> </span><span class="kw">I</span>(x <span class="op">-</span><span class="st"> </span><span class="kw">mean</span>(x)) <span class="op">+</span><span class="st"> </span>Machine, <span class="dt">data=</span>Table15<span class="fl">.10</span>)</a>
+<a class="sourceLine" id="cb9-2" data-line-number="2"><span class="kw">print</span>(<span class="kw">summary</span>(model))</a>
+<a class="sourceLine" id="cb9-3" data-line-number="3"><span class="co">#                Df Sum Sq Mean Sq F value   Pr(&gt;F)    </span></a>
+<a class="sourceLine" id="cb9-4" data-line-number="4"><span class="co"># I(x - mean(x))  1 305.13  305.13 119.933 2.96e-07 ***</span></a>
+<a class="sourceLine" id="cb9-5" data-line-number="5"><span class="co"># Machine         2  13.28    6.64   2.611    0.118    </span></a>
+<a class="sourceLine" id="cb9-6" data-line-number="6"><span class="co"># Residuals      11  27.99    2.54                     </span></a>
+<a class="sourceLine" id="cb9-7" data-line-number="7"><span class="co"># ---</span></a>
+<a class="sourceLine" id="cb9-8" data-line-number="8"><span class="co"># Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></a></code></pre></div>
+<hr />
+</div>
+<div id="table-15.17" class="section level1">
+<h1>Table 15.17</h1>
+<p>We reproduce the analysis from JMP given in Table 15.17 for the data set in Table 15.16. First, we’ll fit the ugly full model as a regression model.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1">op &lt;-<span class="st"> </span><span class="kw">options</span>(<span class="dt">contrast=</span><span class="kw">c</span>(<span class="st">'contr.sum'</span>, <span class="st">'contr.poly'</span>))</a>
+<a class="sourceLine" id="cb10-2" data-line-number="2">model &lt;-<span class="st"> </span><span class="kw">lm</span>(y <span class="op">~</span><span class="st"> </span><span class="kw">I</span>(x <span class="op">-</span><span class="st"> </span><span class="kw">mean</span>(x)) <span class="op">*</span><span class="st"> </span>(A <span class="op">+</span><span class="st"> </span>B <span class="op">+</span><span class="st"> </span>C)<span class="op">^</span><span class="dv">2</span>, <span class="dt">data=</span>Table15<span class="fl">.16</span>)</a>
+<a class="sourceLine" id="cb10-3" data-line-number="3"><span class="kw">options</span>(op)</a>
+<a class="sourceLine" id="cb10-4" data-line-number="4"><span class="kw">print</span>(<span class="kw">summary</span>(model))</a>
+<a class="sourceLine" id="cb10-5" data-line-number="5"><span class="co"># </span></a>
+<a class="sourceLine" id="cb10-6" data-line-number="6"><span class="co"># Call:</span></a>
+<a class="sourceLine" id="cb10-7" data-line-number="7"><span class="co"># lm.default(formula = y ~ I(x - mean(x)) * (A + B + C)^2, data = Table15.16)</span></a>
+<a class="sourceLine" id="cb10-8" data-line-number="8"><span class="co"># </span></a>
+<a class="sourceLine" id="cb10-9" data-line-number="9"><span class="co"># Residuals:</span></a>
+<a class="sourceLine" id="cb10-10" data-line-number="10"><span class="co">#         1         2         3         4         5         6         7 </span></a>
+<a class="sourceLine" id="cb10-11" data-line-number="11"><span class="co"># -0.652000  0.473034 -0.317125  0.145270  0.009703  0.569189  0.161177 </span></a>
+<a class="sourceLine" id="cb10-12" data-line-number="12"><span class="co">#         8         9        10        11        12        13        14 </span></a>
+<a class="sourceLine" id="cb10-13" data-line-number="13"><span class="co">#  0.110712  0.905002 -0.726035  0.064123  0.107732 -0.262704 -0.316187 </span></a>
+<a class="sourceLine" id="cb10-14" data-line-number="14"><span class="co">#        15        16 </span></a>
+<a class="sourceLine" id="cb10-15" data-line-number="15"><span class="co">#  0.091824 -0.363713 </span></a>
+<a class="sourceLine" id="cb10-16" data-line-number="16"><span class="co"># </span></a>
+<a class="sourceLine" id="cb10-17" data-line-number="17"><span class="co"># Coefficients:</span></a>
+<a class="sourceLine" id="cb10-18" data-line-number="18"><span class="co">#                     Estimate Std. Error t value Pr(&gt;|t|)   </span></a>
+<a class="sourceLine" id="cb10-19" data-line-number="19"><span class="co"># (Intercept)         21.39218    1.29005  16.582  0.00362 **</span></a>
+<a class="sourceLine" id="cb10-20" data-line-number="20"><span class="co"># I(x - mean(x))       2.14202    0.36187   5.919  0.02737 * </span></a>
+<a class="sourceLine" id="cb10-21" data-line-number="21"><span class="co"># A                   13.88759    1.29103  10.757  0.00853 **</span></a>
+<a class="sourceLine" id="cb10-22" data-line-number="22"><span class="co"># B                   19.44430    1.12642  17.262  0.00334 **</span></a>
+<a class="sourceLine" id="cb10-23" data-line-number="23"><span class="co"># C                    5.09080    1.11486   4.566  0.04476 * </span></a>
+<a class="sourceLine" id="cb10-24" data-line-number="24"><span class="co"># A:B                -19.59556    0.70141 -27.937  0.00128 **</span></a>
+<a class="sourceLine" id="cb10-25" data-line-number="25"><span class="co"># A:C                 -0.23434    1.25916  -0.186  0.86953   </span></a>
+<a class="sourceLine" id="cb10-26" data-line-number="26"><span class="co"># B:C                 -0.36807    0.88768  -0.415  0.71865   </span></a>
+<a class="sourceLine" id="cb10-27" data-line-number="27"><span class="co"># I(x - mean(x)):A     2.11714    0.42977   4.926  0.03882 * </span></a>
+<a class="sourceLine" id="cb10-28" data-line-number="28"><span class="co"># I(x - mean(x)):B     3.01754    0.36471   8.274  0.01430 * </span></a>
+<a class="sourceLine" id="cb10-29" data-line-number="29"><span class="co"># I(x - mean(x)):C    -0.09672    0.35689  -0.271  0.81180   </span></a>
+<a class="sourceLine" id="cb10-30" data-line-number="30"><span class="co"># I(x - mean(x)):A:B  -2.94911    0.19028 -15.498  0.00414 **</span></a>
+<a class="sourceLine" id="cb10-31" data-line-number="31"><span class="co"># I(x - mean(x)):A:C  -0.01212    0.41587  -0.029  0.97940   </span></a>
+<a class="sourceLine" id="cb10-32" data-line-number="32"><span class="co"># I(x - mean(x)):B:C   0.08482    0.40200   0.211  0.85244   </span></a>
+<a class="sourceLine" id="cb10-33" data-line-number="33"><span class="co"># ---</span></a>
+<a class="sourceLine" id="cb10-34" data-line-number="34"><span class="co"># Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></a>
+<a class="sourceLine" id="cb10-35" data-line-number="35"><span class="co"># </span></a>
+<a class="sourceLine" id="cb10-36" data-line-number="36"><span class="co"># Residual standard error: 1.184 on 2 degrees of freedom</span></a>
+<a class="sourceLine" id="cb10-37" data-line-number="37"><span class="co"># Multiple R-squared:  0.9999,  Adjusted R-squared:  0.999 </span></a>
+<a class="sourceLine" id="cb10-38" data-line-number="38"><span class="co"># F-statistic:  1206 on 13 and 2 DF,  p-value: 0.0008286</span></a></code></pre></div>
+<p>Next we’ll fit the reduced model as an ANOVA model.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1">xx &lt;-<span class="st"> </span>(Table15<span class="fl">.16</span><span class="op">$</span>x <span class="op">-</span><span class="st"> </span><span class="kw">mean</span>(Table15<span class="fl">.16</span><span class="op">$</span>x))</a>
+<a class="sourceLine" id="cb11-2" data-line-number="2">op &lt;-<span class="st"> </span><span class="kw">options</span>(<span class="dt">contrast=</span><span class="kw">c</span>(<span class="st">'contr.sum'</span>, <span class="st">'contr.poly'</span>))</a>
+<a class="sourceLine" id="cb11-3" data-line-number="3">model &lt;-<span class="st"> </span><span class="kw">aov</span>(y <span class="op">~</span><span class="st"> </span>xx <span class="op">+</span><span class="st"> </span>A <span class="op">+</span><span class="st"> </span>B <span class="op">+</span><span class="st"> </span>C <span class="op">+</span><span class="st"> </span>A<span class="op">:</span>B <span class="op">+</span><span class="st"> </span>A<span class="op">:</span>xx <span class="op">+</span><span class="st"> </span>B<span class="op">:</span>xx <span class="op">+</span><span class="st"> </span>A<span class="op">:</span>B<span class="op">:</span>xx, <span class="dt">data=</span>Table15<span class="fl">.16</span>)</a>
+<a class="sourceLine" id="cb11-4" data-line-number="4"><span class="kw">options</span>(op)</a>
+<a class="sourceLine" id="cb11-5" data-line-number="5"><span class="kw">print</span>(<span class="kw">summary</span>(model))</a>
+<a class="sourceLine" id="cb11-6" data-line-number="6"><span class="co">#             Df Sum Sq Mean Sq  F value   Pr(&gt;F)    </span></a>
+<a class="sourceLine" id="cb11-7" data-line-number="7"><span class="co"># xx           1  12156   12156 15068.03 6.28e-13 ***</span></a>
+<a class="sourceLine" id="cb11-8" data-line-number="8"><span class="co"># A            1   1321    1321  1637.04 1.47e-09 ***</span></a>
+<a class="sourceLine" id="cb11-9" data-line-number="9"><span class="co"># B            1   3998    3998  4955.30 3.07e-11 ***</span></a>
+<a class="sourceLine" id="cb11-10" data-line-number="10"><span class="co"># C            1     53      53    65.38 8.52e-05 ***</span></a>
+<a class="sourceLine" id="cb11-11" data-line-number="11"><span class="co"># A:B          1   3788    3788  4695.81 3.70e-11 ***</span></a>
+<a class="sourceLine" id="cb11-12" data-line-number="12"><span class="co"># xx:A         1     64      64    78.92 4.64e-05 ***</span></a>
+<a class="sourceLine" id="cb11-13" data-line-number="13"><span class="co"># xx:B         1     65      65    80.13 4.42e-05 ***</span></a>
+<a class="sourceLine" id="cb11-14" data-line-number="14"><span class="co"># xx:A:B       1    543     543   672.90 3.24e-08 ***</span></a>
+<a class="sourceLine" id="cb11-15" data-line-number="15"><span class="co"># Residuals    7      6       1                      </span></a>
+<a class="sourceLine" id="cb11-16" data-line-number="16"><span class="co"># ---</span></a>
+<a class="sourceLine" id="cb11-17" data-line-number="17"><span class="co"># Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></a></code></pre></div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

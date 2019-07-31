@@ -1,0 +1,126 @@
+---
+title: "Other Design and Analysis Topics"
+output: rmarkdown::html_vignette
+bibliography: bibliography.bib
+vignette: >
+  %\VignetteIndexEntry{Chapter 15 - Other Design and Analysis Topics}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+source('_format.R')
+```
+
+# Example 15.1 - Box-Cox Transformation
+
+Using the data from Example3.5 we can find the Box-Cox transform of the response to make our data look more normally distributed.  
+```{r fig.align='center', fig.width=5, fig.height=5}
+library(MASS)
+
+model <- lm(Observation ~ EstimationMethod, data=Example3.5)
+vals <- boxcox(model)
+```
+
+\noindent The plot indicates that the 95% confidence interval doesn't contain 0 (so no log transform), and that the best is somewhere between around 1/2 to 3/4.  By assigning the value returned by `boxcox` to a variable we can find the peak:
+
+```{r}
+best.lambda <- vals$x[which.max(vals$y)]
+print(best.lambda)
+```
+
+\noindent This suggests 0.5 is an appropriate value for $\lambda$.
+
+
+
+---------
+
+# Example 15.2
+
+Recall the coupon redemption data from Table 15.1, where the number of coupons redeemed is out of 1000 customers.  To fit a binomial GLM (logistic regression) we use the `glm` function and indicate the family is `binomial`.  Note that the response won't be a number, but will be two columns: the first column is the number of successes and the second is the number of failures.
+
+```{r}
+model <- glm(cbind(Coupons, I(1000 - Coupons)) ~ (A + B + C)^2, data=Table15.1, family='binomial')
+print(summary(model))
+```
+
+
+-------------
+
+# Example 15.3 - The Grill Defects Experiment
+
+The grill defects experiment described in problem 8.51 is analyzed in the text using Poisson regression.  First we retrieve the number of defects.
+
+```{r}
+df <- Problem8.51[,c('A','B','C','D','E','F','G','H','J')]
+df[,'Defects'] <- round(Problem8.51[,'Sqrt']^2)
+```
+
+\noindent Next, we fit a poisson model.
+
+```{r}
+model <- glm(Defects ~ D + F + B:G, data=df, family='poisson')
+summary(model)
+```
+
+\noindent Next, we generate approximate 95% confidence intervals around each observation.
+```{r}
+response <- predict(model, type='response', se.fit=TRUE)
+2 * qnorm(0.975) * response$se.fit
+```
+
+
+
+-------------
+
+# Example 15.4 - The Worsted Yarn Experiment
+
+
+Here we fit a Gamma GLM to the data. Note that `Gamma` is capitalized in the family argument, and that we pass `'log'` as the link function.
+
+```{r}
+model <- glm(CyclesToFailure ~ x1 + x2 + x3, data=Table15.4, family=Gamma(link='log'))
+summary(model)
+```
+
+\noindent Next, we generate approximate 95% confidence intervals around each observation.
+```{r}
+response <- predict(model, type='response', se.fit=TRUE)
+2 * qnorm(0.975) * response$se.fit
+```
+
+
+
+
+----------------
+
+# Example 15.5
+
+Note that by placing `I(x - mean(x))` before `Machine` we cause machine to be adjusted by covariate.
+```{r}
+model <- aov(y ~ I(x - mean(x)) + Machine, data=Table15.10)
+print(summary(model))
+```
+
+
+----------------
+
+# Table 15.17
+
+We reproduce the analysis from JMP given in Table 15.17 for the data set in Table 15.16.  First, we'll fit the ugly full model as a regression model.
+```{r}
+op <- options(contrast=c('contr.sum', 'contr.poly'))
+model <- lm(y ~ I(x - mean(x)) * (A + B + C)^2, data=Table15.16)
+options(op)
+print(summary(model))
+```
+
+\noindent Next we'll fit the reduced model as an ANOVA model.
+```{r}
+xx <- (Table15.16$x - mean(Table15.16$x))
+op <- options(contrast=c('contr.sum', 'contr.poly'))
+model <- aov(y ~ xx + A + B + C + A:B + A:xx + B:xx + A:B:xx, data=Table15.16)
+options(op)
+print(summary(model))
+```
+

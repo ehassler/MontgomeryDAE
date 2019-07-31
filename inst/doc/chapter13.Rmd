@@ -1,0 +1,95 @@
+---
+title: "Experiments with Random Factors"
+output: rmarkdown::html_vignette
+bibliography: bibliography.bib
+vignette: >
+  %\VignetteIndexEntry{Chapter 13 - Experiments with Random Factors}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(MontgomeryDAE)
+options(contrasts=c('unordered'='contr.sum', 'ordered'='contr.poly'))
+```
+
+Chapter 13 introduces the distinction between mixed models where the interaction of a fixed and random effect must sum to zero (restricted) versus no such restriction (unrestricted).  There are situations where there is little difference between the restricted and unrestricted models, and there are situations where the difference can be pronounced.  Some confusion about this is added by the fact that the fitting technique "REML" is sometimes called restricted maximum likelihood, and thus talk of restricted versus unrestricted might refer to using REML versus maximum likelihood estimation.  Here, as is the case in the text, the restricted model will refer to the requirement that the interaction of fixed and random effects must sum to zero.
+
+There is no good way in R to fit the restricted model.  Random and mixed effect models are often fit with either the `lme4` package or the `nlme` package.  The `lme4` package [@lme4] is more popular and easier to use, so I will focus on using that package here and in the remaining chapters, along with `lmerTest` [@lmerTest].  This means that our analysis will be unrestricted, and so our best hope is that the output will be close to that from Minitab and JMP though it need only be so when the text notes that the model is unrestricted.  
+
+
+# Examples 13.1 Through 13.4 - A Measurement Systems Capability Study
+
+Examples 13.1 through 13.4 refer to a measurement systems capability study where a gauge repeatability and reproducibility study was conducted on an instrument used to measure a critical part dimension in a manufacturing process.  First let's massage the table into a data frame appropriate for analysis.
+```{r message=FALSE}
+df <- data.frame(
+	'Part'=c(
+		Table13.1$PartNumber, Table13.1$PartNumber, Table13.1$PartNumber
+	),
+	'Operator'=factor(c(
+		rep(1, 40), rep(2, 40), rep(3, 40)
+	)),
+	'Measurement'=c(
+		Table13.1$Operator1, Table13.1$Operator2, Table13.1$Operator3
+	)
+)
+```
+
+
+Next, we'll use the `lme4` package to fit the model and the `lmerTest` package to test the significance of the variance components.  The fixed effect's ANOVA table matches the text.
+
+```{R message=FALSE}
+library(lme4)
+library(lmerTest)
+
+model <- lmer(Measurement ~ Operator + (1 | Part) + (1 | Part:Operator), data=df, REML=TRUE)
+print(anova(model))
+```
+
+\noindent The variance component for `Part` is near to that from the restricted model.
+```{r}
+print(summary(model))
+```
+
+\noindent The significance of the `Part` random effect is extreme, as it is in the restricted model.
+```{r}
+print(rand(model))
+```
+
+
+
+---------------
+
+# Example 13.5
+
+In Example 13.5 an engineer is investigating the effect of inlet side, operator, and specific gauge used by the operator on the pressure drop measures across an expansion valve within a turbine.  First we'll make our data frame with Temperature as a factor.
+```{r}
+df <- Table13.9
+df[,'GasTemperature'] <- factor(df[,'GasTemperature'])
+colnames(df) <- c('A','B','C','PressureDrop')
+```
+
+\noindent Next, we'll fit the model.
+
+```{r message=FALSE}
+library(lme4)
+library(lmerTest)
+
+model <- lmer(PressureDrop ~ A + (1|B) + (1|C) + (1|A:B) + (1|A:C) + (1|B:C) + (1|A:B:C), data=df, REML=TRUE)
+print(summary(model))
+print(rand(model))
+```
+
+\noindent We arrive at the same conclusion as the text, that the `GasTemperature:Operator` interaction is the only significant variance component.
+
+---------------
+
+
+# References

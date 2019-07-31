@@ -1,0 +1,91 @@
+---
+title: "Fitting Regression Models"
+output: rmarkdown::html_vignette
+bibliography: bibliography.bib
+vignette: >
+  %\VignetteIndexEntry{Chapter 10 - Fitting Regression Models}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+source('_format.R')
+```
+
+# Example 10.1
+
+
+The example investigates the relationship of reaction temperature and catalyst feed rate to the viscosity of a polymer. First, let's do the regression through matrix operations.  Define the $X$ matrix using the `model.matrix` command.
+
+```{r}
+X <- model.matrix(~ReactionTemperature + CatalystFeedRate, data=Table10.2)
+print(X)
+```
+
+\noindent The response $y$ is just the `Viscosity` column.
+
+```{r}
+y <- Table10.2$Viscosity
+print(y)
+```
+
+\noindent Now we solve $(X^\mathrm{T} X)^{-1} X^\mathrm{T} y$.  We can find the inverse $(X^\mathrm{T} X)^{-1}$ with `solve(t(X) %*% X)` and then multiply by $X^\mathrm{T} y$, but it's numerically more stable to supply $X^\mathrm{T} y$ as the second argument to `solve`:
+```{r}
+beta.hat <- solve(t(X) %*% X, t(X) %*% y)
+print(beta.hat)
+```
+
+\noindent Now, to do this using `lm` is far simpler:
+```{r}
+model <- lm(Viscosity ~ ReactionTemperature + CatalystFeedRate, data=Table10.2)
+print(summary(model))
+```
+
+Table 10.3 gives many types of residuals and diagnostic measures, many of which we'll create below.
+
+```{r}
+Table10.3 <- data.frame(
+	'y'=Table10.2$Viscosity,
+	'Predicted'=predict(model),
+	'Residual'=resid(model),
+	'hii'=hatvalues(model),
+	'StudentizedResids'=rstudent(model),
+	'CooksD'=cooks.distance(model)
+)
+
+```
+```{r echo=FALSE}
+kable(Table10.3) %>% kable_styling()
+```
+
+-------------
+
+
+# Example 10.6
+
+Consider the viscosity data from Table 10.2.  If we wish to test $H_0: \beta_2 = 0$ versus $H_1: \beta_2 \ne 0$ by partial $F$-test we can use the `anova` function.
+
+```{r}
+model01 <- lm(Viscosity ~ ReactionTemperature, data=Table10.2)
+model012 <- lm(Viscosity ~ ReactionTemperature + CatalystFeedRate, data=Table10.2)
+print(anova(model01, model012))
+```
+
+-------------
+
+# Example 10.7
+
+Parameter confidence intervals can be retrieved with the `confint` function.
+```{r}
+model <- lm(Viscosity ~ ReactionTemperature + CatalystFeedRate, data=Table10.2)
+confint(model)
+```
+\noindent We can also get other intervals.  For example, the prediction interval for the response over `ReactionTemperature` at `CatalystFeedRate` set to 10.5 is given below.  
+```{r fig.align='center', fig.width=5, fig.height=5}
+x1 <- seq(from=80, to=100, length.out=100)
+x2 <- rep(10.5, 100)
+y <-predict(model, newdata=data.frame('ReactionTemperature'=x1, 'CatalystFeedRate'=x2), interval="confidence") 
+plot(x1, y[,1], type='l', ylim=c(2248, 2434), main='Prediction Interval', xlab='Reaction Temperature', ylab='Viscosity')
+lines(x1, y[,2], lty=2)
+lines(x1, y[,3], lty=2)
+```

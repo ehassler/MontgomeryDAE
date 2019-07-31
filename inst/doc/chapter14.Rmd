@@ -1,0 +1,108 @@
+---
+title: "Nested and Split-Plot Designs"
+output: rmarkdown::html_vignette
+bibliography: bibliography.bib
+vignette: >
+  %\VignetteIndexEntry{Chapter 14 - Nested and Split-Plot Designs}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+source('_format.R')
+```
+
+_Note:_ The unrestricted model is used for mixed effects.  See the note at beginning of the vignette for Chapter 13 for details.
+
+# Example 14.1
+
+In this example a company that buys material in batches from three different suppliers wishes to better understand the variable purity of the material from each supplier.  Since each batch of material came from one supplier this will be a nested random effects experiment. The way we model a nested effect in `lme4` is with the expression `(1 | Parent/Child)` for a child effect nested under a parent.
+```{r message=FALSE}
+library(lme4)
+library(lmerTest)
+
+model <- lmer(Purity ~ (1 | Supplier/Batches), data=Table14.3)
+print(summary(model))
+print(rand(model))
+```
+\noindent Here we find the majority of the variation is from batch-to-batch within each supplier, so it's unlikely that we'll be able to solve this problem by picking the "best" supplier.
+
+------------
+
+# Example 14.2
+
+An engineer is studying manual insertion of components on printed circuit boards using three different fixtures and two different layouts.  Four operators are selected at random to participate in the experiment.
+```{r}
+df <- Table14.10
+df[,'FO'] <- factor(sprintf('F%s.O%s', as.character(df[,'Fixture']), as.character(df[,'Operator'])))
+model <- lmer(AssemblyTime ~ Layout * Fixture + (1|Operator/Layout) + (1|FO/Layout), data=df)
+print(anova(model))
+```
+\noindent When we look at the REML fit we find that one of the random effect estimates is identically zero, and another is very near zero.  The remaining effects are within about one standard deviation of zero.  It appears that R is having trouble dealing with the boundary in this model.  In practice it would be a good idea to remove those random effects and refit the model. 
+```{r}
+print(summary(model))
+```
+\noindent When we go to calculate the significance of the random effects we are again warned of the problem with fitting, and find none to be significant. 
+```{r}
+print(rand(model))
+```
+
+
+# Section 14.4 - The Split-Plot Design
+
+This section discusses the experiment on the tensile strength of paper in Table 14.16.  First let's fit it using fixed effects.
+
+```{r}
+df <- Table14.16
+df[,'Temperature'] <- factor(df[,'Temperature'])
+model <- aov(TensileStrength ~ Temperature * Preperation + Error(Replicate), data=df)
+summary(model)
+```
+
+\noindent Next, let's use the mixed effects model.
+```{r}
+library(lme4)
+library(lmerTest)
+
+df <- Table14.16
+df[,'Temperature'] <- factor(df[,'Temperature'])
+model <- lmer(TensileStrength ~ Temperature * Preperation * (1|Replicate), data=df)
+print(anova(model))
+print(summary(model))
+print(rand(model))
+```
+\noindent Note that above we find R has converged on a solution, so we feel good about the validity of these results.  
+
+
+---------------
+
+
+# Example 14.3
+
+A single wafer plasma etching process is being investigated to understand the effect of electrode gap (`A`), gas flow (`B`), pressure (`C`), time (`D`), and RF power (`E`).  Note that `A`, `B`, and `C` are difficult to change run-to-run, but `D` and `E` are easy to change.  The data is in Table 14.22. We fit the coefficient estimates using the regular `aov` function as `lmer` does not well handle this example.
+
+```{r}
+model <- aov(Uniformity ~ (A + B + C + D + E)^2 +  Error(WholePlot), data=Table14.22)
+coef(model)
+```
+
+\noindent We have to construct our own normal probability plots because `halfnormal` from `DoE.base` doesn't understand the error structure of the model.
+
+```{r fig.align='center', fig.width=8, fig.height=4}
+op <- par(mfrow=c(1,2))
+# Whole plot
+labs <- names(coef(model)$WholePlot)
+pts <-qqnorm(coef(model)$WholePlot, col='white', main='WholePlot')
+qqline(pts$y, col='orange')
+text(x=pts$x, y=pts$y, labels=labs, cex=0.5)
+# Sub plot
+labs <- names(coef(model)$Within)
+pts <-qqnorm(coef(model)$Within, col='white', main='Subplot')
+qqline(pts$y, col='orange')
+text(x=pts$x, y=pts$y, labels=labs, cex=0.5)
+par(op)
+```
+
+\noindent The probability plots indicate `A`, `B` and `A:B` are good candidates for the whole plot active effects, and `E` and `A:E` are good subplot active effect candidates.
+
+
