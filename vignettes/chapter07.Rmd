@@ -1,0 +1,86 @@
+---
+title: "Blocking and Confounding in the 2^k^ Factorial Design"
+output: rmarkdown::html_vignette
+bibliography: bibliography.bib
+vignette: >
+  %\VignetteIndexEntry{Chapter 07 - Blocking and Confounding in the 2^k^ Factorial Design}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+source('_format.R')
+```
+
+# Example 7.1
+
+The example uses the data from Figure 6.1 of Section 6.2.  Recall that the experimenter seeks to optimize yield by varying reactant concentration (`A`) and catalyst amount (`B`), but this time we'll run the experiment in three blocks as shown in Table 7.1.  First, we model the blocks as fixed effects.
+```{r}
+df <- Figure6.1
+df[,'Block'] <- factor(c(rep(1, 4), rep(2, 4), rep(3, 4)))
+
+model <- aov(Yield ~ Error(Block) + A * B, data=df)
+summary(model)
+```
+
+Next, we model the blocks as random effects.
+```{r message=FALSE}
+library(lme4)
+library(lmerTest)
+model <- lmer(
+    Yield ~ A * B + (1|Block),
+    data=df,
+    REML=TRUE
+)
+summary(model)
+```
+\noindent The blocking failed to show significance in the likelihood ratio test, shown next.
+```{r}
+rand(model)
+```
+\noindent Finally, we present confidence intervals for the main effects and for the variance components.
+```{r message=FALSE}
+confint(model, oldNames=FALSE)
+```
+
+
+---------
+
+
+# Example 7.2
+
+We revisit the experiment from Example 6.2 where we are changing temperature, pressure, concentration of formaldehyde, and stirring rate to determine the effect on the filtration rate.  Now we're going to use the highest order interaction term as a blocking scheme.  First we run the full model looking for the largest effects.
+
+```{r}
+df <- Table6.10
+df[df$Block == 1, 'Filtration'] <- df[df$Block == 1, 'Filtration'] - 20
+
+model <- aov(Filtration ~ Temperature * Pressure * Formaldehyde * StirringRate, data=Table6.10)
+model.ss <- anova(model)[['Sum Sq']]
+effect.estimates <- data.frame(
+	'EffectEstimate'=2 * coef(model)[-1],
+	'SumOfSquares'=model.ss[-1],
+	'Contribution'=sprintf('%0.2f%%', 100*model.ss[-1]/sum(model.ss[-1]))
+)
+```
+```{r echo=FALSE}
+kable(effect.estimates) %>% kable_styling(font_size=10)
+```
+\noindent Next, we choose the largest effects and proceed with that reduced model while marking our `Block` as an error term.
+```{r}
+model <- aov(Filtration ~ Error(Block) + Temperature + Formaldehyde + StirringRate + Temperature:Formaldehyde + Temperature:StirringRate, data=df)
+summary(model)
+```
+
+
+
+
+----------
+
+# Example 7.3
+
+We return to the plasma etching experiment of Example 6.1.  This time we're adding blocking! Note that I've added a `Block` for convenience, but in the R output we see it noticed we were aliasing `Gap:Flow` and `Gap:Flow:Power` interactions with blocks.
+```{r}
+model <- aov(EtchRate ~ Error(Block) + Gap * Flow * Power, data=Table6.4)
+summary(model)
+```

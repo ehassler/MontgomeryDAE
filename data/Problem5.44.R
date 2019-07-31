@@ -1,0 +1,57 @@
+Problem5.44 <- data.frame(
+	"Block" = c(
+		'Block 1',
+		'Block 2',
+		'Block 1',
+		'Block 2',
+		'Block 1',
+		'Block 2',
+		'Block 1',
+		'Block 2',
+		'Block 1',
+		'Block 2',
+		'Block 1',
+		'Block 2'
+	),
+	"AnchorType" = c(
+		'A',
+		'A',
+		'B',
+		'B',
+		'C',
+		'C',
+		'A',
+		'A',
+		'B',
+		'B',
+		'C',
+		'C'
+	),
+	"FoamDensity" = c(
+		'Low',
+		'Low',
+		'Low',
+		'Low',
+		'Low',
+		'Low',
+		'High',
+		'High',
+		'High',
+		'High',
+		'High',
+		'High'
+	),
+	"Force" = c(
+		190,
+		200,
+		185,
+		190,
+		210,
+		205,
+		241,
+		255,
+		230,
+		237,
+		256,
+		260
+	))

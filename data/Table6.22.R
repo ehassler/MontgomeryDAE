@@ -1,0 +1,26 @@
+Table6.22 <- cbind(
+	expand.grid(
+		'AnnualFee'=c(-1,1),
+		'AccountOpeningFee'=c(-1,1),
+		'InitialInterestRate'=c(-1,1),
+		'LongTermInterestRate'=c(-1,1)
+	),
+	'ResponseRate'=c(
+		0.0245,
+		0.0336,
+		0.0216,
+		0.0229,
+		0.0249,
+		0.0339,
+		0.0232,
+		0.0244,
+		0.0184,
+		0.0224,
+		0.0169,
+		0.0187,
+		0.0229,
+		0.0292,
+		0.0204,
+		0.0203
+	)
+)

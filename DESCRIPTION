@@ -1,0 +1,31 @@
+Package: MontgomeryDAE
+Type: Package
+Title: MontgomeryDAE - Data and examples from Montgomery's "Design and Analysis of Experiments"
+Version: 9.0
+Author: Edgar Hassler
+Maintainer: Edgar Hassler <ehassler@gmail.com>
+Description: Contains problem and example data sets from Montgomery's "Design and Analysis of Experiments" 9th edition.  Examples are worked in R as vignettes.
+License: This isn't licensed to anyone but myself.
+Encoding: UTF-8
+LazyData: true
+Suggests: 
+    knitr,
+    kableExtra,
+    rmarkdown,
+    pwr,
+    DoE.base,
+    rgl,
+    agricolae,
+    dae,
+    emmeans,
+    lme4,
+    lmerTest,
+    FrF2,
+    corrplot,
+    rsm,
+    Vdgraph,
+    DiceDesign,
+    DiceEval,
+    qualityTools,
+    mixexp
+VignetteBuilder: knitr
