@@ -11,11 +11,11 @@ vignette: >
 source('_format.R')
 ```
 
-R is an interpreted language for analyzing and visualizing data.  It's very different from products like Minitab and JMP even though the users' goals are often the same.  Perhaps the most important factor to the success of R is that it's free and open source.  Because of its accessibility, many people have chosen to adopt it for research, for business purposes, and for teaching.  Some of them created packages that would let R do the analysis they needed to do, or as a way to enable people to do a new kind of analysis altogether.  R grew and grew.  Today it is an indispensable tool for many statisticians and data scientists.
+R is an interpreted language for analyzing and visualizing data.  It's very different from products like Minitab and JMP even though the users' goals are often the same.  Perhaps the most important factor for the success of R is that it's free and open source.  Because of its accessibility, many people have chosen to adopt it for research, for business purposes, and for teaching.  Some of them created packages that would let R do the analysis they needed to do, or as a way to enable people to do a new kind of analysis altogether.  R grew and grew.  Today it is an indispensable tool for many statisticians and data scientists.
 
-There's no way to cover most or even much of R and the important packages.  Instead, I've tried to give a taste of R, enough to get people through the examples contained in the subsequent sections.  Each chapter except for this chapter corresponds to the same numbered chapter in _Design and Analysis of Experiments_.  This document is very much a companion - on its own it will likely make little to no sense, but used with the textbook it should allow R users to follow along with the examples.
+There's no way to cover most or even much of R and the important packages.  Instead, I've tried to provide just a taste of R, enough to get people through the examples contained in the subsequent sections.  Each chapter following corresponds to the same numbered chapter in _Design and Analysis of Experiments_.  This document is very much a companion - on its own it will likely make little to no sense, but used with the textbook it should allow R users to follow along with the examples.
 
-This chapter is divided into two main parts.  First, I will describe how to get and install R and associate tools. Second, I will cover how key features of the R language work.
+This chapter is divided into two main parts.  First, I will describe how to get and install R and associated tools. Second, I will cover how key features of the R language work.
 
 # Getting Started
 
@@ -25,17 +25,29 @@ To get started we will first download the R interpreter so that we can run R cod
 
 At present you can find R through the website [https://www.r-project.org](https://www.r-project.org).  There you can download a version of R best suited for your operating system, and learn what code names each release has (the present release 3.6.1  is _Action of the Toes_).  
 
+For macOS users, instead of installing R from the `pkg`, I'd recommend installing [homebrew](https://brew.sh) and installing R using homebrew.  At present you can do this by running the following from terminal:
+```{bash eval=FALSE}
+/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+```
+\noindent Next, to install R using homebrew simply run the following in the terminal:
+```{bash eval=FALSE}
+brew install r
+```
+\noindent The homebrew installation method makes things such as installing R source packages easier down the road.  Windows users can install [`Rtools`](https://cran.r-project.org/bin/windows/Rtools/index.html) to provide a toolchain for compiling source packages as well. 
+
 When reading about R you'll see CRAN a lot.  CRAN standards for Comprehensive R Archive Network and it's where you'll actually be downloading R and most packages.  Packages are collections of code (in R, C, Fortran, or other languages), data sets, and documentation that we load using the `library` function.  There is a _huge_ variety of R packages that cover almost anything you could want (note the "almost" qualifier).
 
-Microsoft began seriously investing in R back in 2015 when it acquired Revolution Analytics. Since then they've developed their own runtime for R that has improved performance (see [https://mran.microsoft.com/open](https://mran.microsoft.com/open)) but often lags behind the current version of CRAN R.  Microsoft has integrated R into other products as well - you can run R code directly inside SQL Server queries. I tend to use CRAN R over MRO since that's the version packages are tested against.
+Microsoft began seriously investing in R back in 2015 when it acquired Revolution Analytics. Since then they've developed Microsoft R Open (MRO) which is their own runtime for R that has improved performance (see [https://mran.microsoft.com/open](https://mran.microsoft.com/open)) but often lags behind the current version of CRAN R.  Microsoft has integrated R into other products as well - you can run R code directly inside SQL Server queries. I tend to use CRAN R over MRO since that's the version packages are tested against.
+
 
 ## Install RStudio
+
 
 Most people use an integrated development environment (IDE) called RStudio ([https://www.rstudio.com/](https://www.rstudio.com/)) when they work with R. In fact, once you start using RStudio if you ever have to go back to the regular R environment it feels very punishing.  A free version of RStudio is available for most operating systems.  The RStudio IDE is also extremely useful for publishing via RMarkdown, package development, and a host of other R-related activities.  
 
 ## R Studio Window
 
-The R Studio window has four main panes.  The top left is where you can edit files and highlight code to run.  The bottom left is the interactive R session and you can enter commands there directly if you wish.  The bottom left also has a terminal tab so that you can use the command prompt or shell from within the application.  
+The RStudio window has four main panes.  The top left is where you can edit files and highlight code to run.  The bottom left is the interactive R session and you can enter commands there directly if you wish.  The bottom left also has a terminal tab so that you can use the command prompt or shell from within the application.  
 
 ```{r fig.align='center', out.width = "90%", fig.pos="h", echo=FALSE, out.extra='keepaspectratio'}
 options(tinytex.verbose = TRUE)
@@ -53,12 +65,14 @@ library("MASS")
 fractions(0.333333)
 ```
 
+Above and throughout this document the output of commands will be displayed following the command as a comment.  Comments in R are everything after `#` to the end of the line. Above, the output of the `fractions` command is `1/3`, and so it is displayed as `# [1] 1/3`.  
+
 The `MontgomeryDAE` package contains data files from the textbook as well as a copy of this document.  To get this package we need to use `devtools` to install it from GitHub. Installing `devtools` and loading it is simple:
 ```{r warning=FALSE, eval=FALSE}
 install.packages('devtools')
 library('devtools')
 ```
-Then, to install the package from GitHub we use the `install_github` function.
+\noindent Then, to install the package from GitHub we use the `install_github` function.
 ```{r warning=FALSE, eval=FALSE}
 install_github("ehassler/MontgomeryDAE")
 ```
@@ -71,9 +85,9 @@ browseVignettes(package='MontgomeryDAE')
 
 # The R Language
 
-If you've worked with a C-like language you'll feel comfortable with R.  The way R's syntax works is something between Javascript and Python.  You don't have to worry about declaring types or compiling your code.  Instead you can work with R pretty interactively, typing different things into a session and seeing how things work out.  This enables an R user to efficiently do exploratory data analysis while preserving the reproducibility of that exploration (since we can simply re-run that set of commands to get the same results). 
+If you've worked with a C-like language you'll feel comfortable with R.  The syntax of R is something between Javascript and Python.  You don't have to worry about declaring types or compiling your code.  Instead you can work with R pretty interactively, typing different things into a session and seeing how things work out.  This enables an R user to efficiently do exploratory data analysis while preserving the reproducibility of that exploration (since we can simply re-run that set of commands to get the same results). 
 
-Everything in R is an object.  You can assign functions to variables and return functions from functions. An odd thing about R is that it has functions to interact with the parse tree of the code that's currently being evaluated.  Sometimes you'll see R somehow "knows" the name of the variable you passed into a function and uses that as a label on a graph.  Don't be alarmed.  R is not becoming self aware.  
+Everything in R is an object.  You can assign functions to variables and return functions from functions. An odd thing about R is that it has functions to interact with the parse tree of the code that's currently being evaluated.  Sometimes you'll see R somehow "knows" the name of the variable you passed into a function and uses that as a label on a graph.  Don't be alarmed.  R is not becoming self-aware.  
 
 One example of this oddity is in loading libraries.  Previously we loaded the `MASS` package using 
 ```{r eval=FALSE}
@@ -85,7 +99,7 @@ library(MASS)
 ```
 \noindent to load it. 
 
-R is an interpreted language with an interactive interpreter.  Most of the time I work by writing code, highlighting it, then I have RStudio execute it in the interactive session. I'll then play around with that session to figure out what kind of bugs are occurring or to pull up a help file.  R's help system is very convenient.  Once I feel like my analysis is where I want it to be I'll perform a final check before submitting it to a stake holder:  I'll restart my R environment and run the script I've made to make sure the results are what I expect.
+R is an interpreted language with an interactive interpreter.  Most of the time I work by writing code, highlighting it, then I have RStudio execute it in the interactive session. I'll then play around with that session to figure out what kind of bugs are occurring or to pull up a help file.  R's help system is very convenient.  Once I feel like my analysis is where I want it to be I'll perform a final check before submitting it to a stakeholder:  I'll restart my R environment and run the script I've made to make sure the results are what I expect.
 
 To get help with a function or package in R all you have to do is enter a question mark followed by the name.  Help files usually include examples as well.  Try entering the following:
 
@@ -126,7 +140,7 @@ friends <- friends + 1
 print(friends)
 ```
 
-\noindent Here we see that we assigned a value of 1 to `friends`, then we added 1 to it, to end up with 2 friends.  User of `=` is also very common.  Using that our code would be:
+\noindent Here we see that we assigned a value of 1 to `friends`, then we added 1 to it, to end up with 2 friends.  Use of `=` is also very common.  Using that our code would be:
 ```{r}
 friends = 1
 friends = friends + 1
@@ -242,10 +256,17 @@ print(index)
 print(x[index])
 ```
 
+\noindent Finally, if we provide no index at all we get the full vector back:
+```{r}
+print(x[])
+```
+
+
 ## Matrices and Arrays
 
-Matrices are essentially two-dimensional vectors, and are a type of array.  In R we can define an arbitrary-dimensional vector structure with the `array` function.
+Matrices are essentially two-dimensional vectors, and are a type of array.  In R we can define an arbitrary-dimensional vector structure with the `array` function.  Accessing elements can be done the same way we accessed with vectors, except now we will have commas separating each dimension of the data structure (so matrices have 2 dimensions, and arrays have 1 or more dimensions).
 
+First, let's construct a matrix:
 ```{r}
 X <- matrix(c(1,0,0,0,1,0,0,0,1), ncol=3)
 X
@@ -270,6 +291,11 @@ W
 \noindent We can access elements of an array in the same way.
 ```{r}
 W[1,1:2,1:2]
+```
+
+\noindent As in the case of vectors, if we leave an index blank it returns everything along that dimension. I'll leave the first two places of the index of `W` empty and choose a value for the third.
+```{r}
+W[ , , 2]
 ```
 
 \noindent Certain operators are expressed between percent symbols.  For example, matrix multiplication uses `%*%`.
@@ -364,11 +390,20 @@ Sometimes we want to indicate a column of a `data.frame` represents qualitative 
 factor(c(1,2,3,1,3,2,3,3,2,1,2,2,3))
 ```
 
-\noindent Some functions understand that levels represent some qualitative information.  Let's load and plot the canonical Iris data set that descibes 50 of each of three species of iris flower in terms of the petal length and width and the sepal length and width (see [https://en.wikipedia.org/wiki/Iris_flower_data_set](https://en.wikipedia.org/wiki/Iris_flower_data_set) for more about the data set).
+\noindent Some functions understand that levels represent some qualitative information.  Let's load and plot the canonical Iris data set that describes 50 of each of three species of iris flower in terms of the petal length and width and the sepal length and width (see [https://en.wikipedia.org/wiki/Iris_flower_data_set](https://en.wikipedia.org/wiki/Iris_flower_data_set) for more about the data set).
 
 ```{r}
 library(datasets)
 data(iris)
+```
+
+This loaded the iris data set into a `data.frame` named `iris`.  To verify this we can use `str` to examine the structure of the `iris` object:
+
+```{r}
+str(iris)
+```
+We can get summary statistics on each column of the `data.frame` as follows:
+```{r}
 summary(iris)
 ```
 
@@ -402,7 +437,7 @@ as.character(iris$Species)
 
 ## Formula 
 
-An odd about R (the third odd thing for those keeping count) are the formula objects.  Let's say we want to perform a linear regression to predict petal length using petal width and species.  R uses something called Wilkinson's notation to describe this relationship. The following is an example formula relating `Petal.Length` to `Petal.Width` and `Species`.
+Another odd thing about R (the third odd thing for those keeping count) are the formula objects.  Let's say we want to perform a linear regression to predict petal length using petal width and species.  R uses something called Wilkinson's notation to describe this relationship. The following is an example formula relating `Petal.Length` to `Petal.Width` and `Species`.
 ```{r}
 formula <- Petal.Length ~ Petal.Width + Species
 print(class(formula))
@@ -416,7 +451,7 @@ lm(Petal.Length ~ Petal.Width + Species, data=iris)
 ```{r}
 lm("Petal.Length ~ Petal.Width + Species", data=iris)
 ```
-\noindent The formula also describes how the raw data is to be transformed for modelling.  If we used `*` instead of `+` then R would assume we want `Petal.Width`, `Species`, and the two-factor interaction term `Species:Petal.Width`:
+\noindent The formula also describes how the raw data is to be transformed for modeling.  If we used `*` instead of `+` then R would assume we want `Petal.Width`, `Species`, and the two-factor interaction term `Species:Petal.Width`:
 ```{r}
 lm(Petal.Length ~ Petal.Width * Species, data=iris)
 ```
@@ -425,7 +460,7 @@ We can do a lot of fancy things using Wilkinson's notation and it's becoming com
 
 # Where To Learn More
 
-There's lots of resources to learn more about R.  
+There are a lot of resources you can use to learn more about R. 
 
  * [A (Very) Short Introduction to R](https://cran.r-project.org/doc/contrib/Torfs+Brauer-Short-R-Intro.pdf) by Torfs and Braur is an excellent concise introductory PDF.
  * The book [R In Action](https://www.manning.com/books/r-in-action) and website [Quick-R](https://www.statmethods.net/) by Rob Kabacoff are also excellent resources.
@@ -435,12 +470,13 @@ There's lots of resources to learn more about R.
 
 
 
+```{r include=FALSE, eval=FALSE}
 ------------------
 
-# Notes and Problems
+# Edgar's Notes for Himself
 
  * Determining Sample Size - The JMP table in the book seems to want way more samples than what I calculate.
  * Smelting Experiment of Section 3.8.3 - I match the variance component point estimates but the CIs are way off from mine.
  * Example 11.6 - I can't get results to match jmp.  The rsm package doesn't do no intercept.
  * Chapter 14 - Not sure how to get whole, sub, and residual data... This whole chapter is trouble.
-
+```
