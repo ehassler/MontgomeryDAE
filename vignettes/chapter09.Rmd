@@ -3,7 +3,7 @@ title: "Additional Topics for Factorial and Fractional Factorial Designs"
 output: rmarkdown::html_vignette
 bibliography: bibliography.bib
 vignette: >
-  %\VignetteIndexEntry{Chapter 09 - Additional Designs and Analysis Topics for Factorial and Fractional Factorial Designs}
+  %\VignetteIndexEntry{Chapter 09 --- Additional Designs and Analysis Topics for Factorial and Fractional Factorial Designs}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -12,16 +12,17 @@ vignette: >
 source('_format.R')
 ```
 
+Chapter 9 in the text introduces designs with three-level factors and some non-regular fractional factorial (two-level) designs.  The chapter also introduces optimal designs which (as of this writing) are not very well supported in R.  
 
 # Example 9.1
 
-The syrup loss experiment of Table 9.1 investigates how nozzle design, the filling speed, and the operating pressure affect the amount of syrup lost while filling containers.  Each factor is investigated at three levels using a $3^3$ design.  Note that we want to treat `Speed` and `Pressure` as factors for the ANOVA model.
+The syrup loss experiment of Table 9.1 investigated how nozzle design, the filling speed, and the operating pressure affect the amount of syrup lost while filling containers.  Each factor is investigated at three levels using a $3^3$ design.  Note that we want to treat `Speed` and `Pressure` as factors for the ANOVA model:
 ```{r}
 model <- aov(SyrupLoss ~ NozzleType * factor(Speed) * factor(Pressure), data=Table9.1)
 print(summary(model))
 ```
 
-\noindent Next we'll fit regression models for each nozzle type to fit a contour plot for each nozzle type.
+\noindent Next we'll fit regression models for each nozzle type to fit a contour plot for each nozzle type:
 ```{r}
 code.speed <- function(x){
 	(x - 120) / (140 - 120)
@@ -47,6 +48,7 @@ print(coef(model2))
 print(coef(model3))
 ```
 
+\noindent Next, we generate contour plots with the following code:
 ```{r fig.align='center', fig.width=8, fig.height=8}
 x <- seq(from=100, to=140, length.out=100)
 y <- seq(from=10, to=20, length.out=100)
@@ -69,7 +71,7 @@ plot.new()  # This just uses up the last cell.
 
 # Example 9.2
 
-This example illustrates the design of a $3^2$ in three blocks (aliasing the $AB^2$ effect with blocks).
+This example illustrates the design of a $3^2$ in three blocks (aliasing the $AB^2$ effect with blocks):
 ```{r}
 model <- aov(Response ~ Error(Block) + A + B + A:B, data=Example9.2)
 print(summary(model))
@@ -92,7 +94,7 @@ corrplot(X.corr, method='color', tl.col="black", tl.srt=45, tl.cex=0.7)
 
 -------------
 
-# Example 9.3 - The Spin Coating Experiment
+# Example 9.3 --- The Spin Coating Experiment
 
 Recall the spin coating experiment from Section 8.7.2.  Again we use stepwise regression.
 ```{r}
@@ -115,7 +117,7 @@ print(anova(model))
 # Example 9.4
 
 
-At present there's no easy way to construct $I$-optimal designs with blocks using R.  We will construct an I-optimal design for 6 factors at levels $(-1, 0, 1)$. The design from the text has balanced blocks with three runs in each block, but the `AlgDesign` package does not support this constraint for $I$-optimal designs.
+At present there's no easy way to construct $I$-optimal designs with blocks using R.  We will construct an I-optimal design for six factors at levels $(-1, 0, 1)$. The design from the text has balanced blocks with three runs in each block, but the `AlgDesign` package does not support this constraint for $I$-optimal designs.  We construct the $I$-optimal design (without blocking) as follows:
 
 ```{r example9.4.Iopt}
 library(AlgDesign)
@@ -132,13 +134,13 @@ candidate.list <- expand.grid(
 opt.i <- optFederov(~A+B+C+D+E+F, data=candidate.list, nTrials=12, criterion='I', approximate=FALSE, nRepeats=1000)
 ```
 
-The optimal design discovered has I-criterion `r opt.i$I` and the following layout.
+\noindent The optimal design discovered has I-criterion `r opt.i$I` and the following layout:
 
 ```{r echo=FALSE}
 kable(opt.i$design) %>% kable_styling(bootstrap_options = "striped", full_width = F)
 ```
 
-\noindent Compare this to the design in Table 9.36. The value of the I-criterion for this design is as follows:
+\noindent Compare this to the design in Table 9.36. The value of the $I$-criterion for this design is as follows:
 
 ```{r}
 eval.design(~ A + B + C + D + E + F, design=Table9.36, X=candidate.list)$I

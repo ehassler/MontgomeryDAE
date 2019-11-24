@@ -3,7 +3,7 @@ title: "Response Surface Methods and Designs"
 output: rmarkdown::html_vignette
 bibliography: bibliography.bib
 vignette: >
-  %\VignetteIndexEntry{Chapter 11 - Response Surface Methods and Designs}
+  %\VignetteIndexEntry{Chapter 11 --- Response Surface Methods and Designs}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -13,7 +13,7 @@ source('_format.R')
 set.seed(98477112)
 ```
 
-A key feature of many response surface designs is splitting the residual error into a pure error term and a lack of fit term.  The pure error term is invariant to the specified model as it compares the mean of runs at a specific location with the observed values.  This allows testing model misspecification, but isn't supported by native R, so we will use the `rsm` package [@rsm] in this chapter.  The `rsm` package also has facilities for design construction - the [vignette](https://cran.r-project.org/web/packages/rsm/vignettes/rsm.pdf) for the package is a good resource on the many features.  
+A key feature of many response surface designs is splitting the residual error into a pure error term and a lack of fit term.  The pure error term is invariant to the specified model as it compares the mean of runs at a specific location with the observed values.  This allows testing model misspecification, but isn't supported by native R, so we will use the `rsm` package [@rsm] in this chapter.  The `rsm` package also has facilities for design construction --- the [vignette](https://cran.r-project.org/web/packages/rsm/vignettes/rsm.pdf) for the package is a good resource on the many features.  
 
 
 # Example 11.1
@@ -30,7 +30,7 @@ model <- rsm(Yield ~ FO(x1, x2), data=cf)
 summary(model)
 ```
 
-\noindent The lack of fit is not significant, but let's add the two factor interaction in anyway using the `TWI` helper.
+\noindent The lack of fit is not significant so there's no need to add terms, but let's add the two-factor interaction term into the model using the `TWI` helper anyway.
 
 ```{r}
 model <- rsm(Yield ~ FO(x1, x2) + TWI(x1, x2), data=cf)
@@ -43,26 +43,26 @@ summary(model)
 
 # Example 11.2
 
-We conduct the test for lack of fit over the linear, linear with interaction, and the full quadratic model, for each of the responses.  First, we begin with `Yield`.  For `Yield`, the first order model shows lack of fit.
+We conduct the test for lack of fit over the linear, linear with interaction, and the full quadratic model, for each of the responses.  First, we begin with `Yield`.  For `Yield`, the first order model shows lack of fit:
 ```{r}
 cf <- coded.data(Table11.6, x1 ~ (Time - 85) / 5, x2 ~ (Temperature - 175) / 5)
 model <- rsm(Yield ~ FO(x1, x2), data=cf)
 summary(model)$lof
 ```
 
-\noindent The first order model with interactions shows lack of fit as well.
+\noindent The first order model with interactions shows lack of fit as well:
 ```{r}
 model <- rsm(Yield ~ FO(x1, x2) + TWI(x1, x2), data=cf)
 summary(model)$lof
 ```
 
-\noindent The second order model does not show significant lack of fit.
+\noindent The second order model does not show significant lack of fit:
 ```{r}
 model <- rsm(Yield ~ SO(x1, x2), data=cf)
 summary(model)$lof
 ```
 
-\noindent Next, we examine `Viscosity`.  Lack of Fit is no longer significant at the second order model.
+\noindent Next, we examine `Viscosity`.  Lack of fit is no longer significant at the second order model:
 ```{r}
 model.fo <- rsm(Viscosity ~ FO(x1, x2), data=cf)
 model.in <- rsm(Viscosity ~ FO(x1, x2) + TWI(x1, x2), data=cf)
@@ -75,7 +75,7 @@ rbind(
 )
 ```
 
-\noindent Finally, we examine `MolecularWeight`.  Lack of Fit is not significant for the first order model, so we shall use that.
+\noindent Finally, we examine `MolecularWeight`.  Lack of fit is not significant for the first order model, so this is the model we shall use:
 ```{r}
 model.fo <- rsm(MolecularWeight ~ FO(x1, x2), data=cf)
 model.in <- rsm(MolecularWeight ~ FO(x1, x2) + TWI(x1, x2), data=cf)
@@ -88,7 +88,7 @@ rbind(
 )
 ```
 
-Constructing the response surface plots is pretty easy with `rsm`.  Figure 11.11 gives the response surface for the second order model of `Yield`, which we present below.
+Constructing the response surface plots is pretty easy with `rsm`.  Figure 11.11 gives the response surface for the second order model of `Yield`, which we present below:
 ```{r fig.align='center', fig.width=5, fig.height=5}
  contour(model, ~ x1 + x2, image = TRUE)
 ```
@@ -100,9 +100,9 @@ Constructing the response surface plots is pretty easy with `rsm`.  Figure 11.11
 
 # Example 11.3
 
-Note that the `AlgDesign` package uses the Federov exchange algorithm and chooses from a candidate set of points, whereas software like JMP and Design expert use an efficient search algorithm that does not require enumeration of points. As of this time I'm unaware of an R package for constructing such designs, however the existing optimization routines in R are sufficient for such construction. 
+Note that the `AlgDesign` package uses the Federov exchange algorithm and chooses from a candidate set of points, whereas software like JMP and Design Expert use an efficient search algorithm that does not require enumeration of points. As of this time I'm unaware of an R package for constructing such designs, however the existing optimization routines in R are sufficient for such construction. 
 
-For both the $D$-optimal design in Table 11.13 and the $I$-optimal design in Table 11.14, a fraction of design space plot was created.  The package `Vdgraph` [@Vdgraph] provides the ability to construct such plots.  The following is the fraction of design space plot for the $D$-optimal design of Table 11.13.
+For both the $D$-optimal design in Table 11.13 and the $I$-optimal design in Table 11.14, a fraction of design space plot was created.  The package `Vdgraph` [@Vdgraph] provides the ability to construct such plots.  The following is the fraction of design space plot for the $D$-optimal design of Table 11.13:
 
 ```{r fig.align='center', fig.width=5, fig.height=5}
 library(Vdgraph)
@@ -110,7 +110,7 @@ library(Vdgraph)
 FDSPlot(Table11.13[,c('X1','X2','X3','X4')], mod=2)
 ```
 
-\noindent Next, we present the fraction of design space plot for the $I$-optimal design of Table 11.14.
+\noindent Next, we present the fraction of design space plot for the $I$-optimal design of Table 11.14:
 ```{r fig.align='center', fig.width=5, fig.height=5}
 FDSPlot(Table11.14[,c('X1','X2','X3','X4')], mod=2)
 ```
@@ -121,7 +121,7 @@ FDSPlot(Table11.14[,c('X1','X2','X3','X4')], mod=2)
 # Example 11.4
 
 
-Computational fluid dynamics (CFD) models of exhaust from a jet turbine was studied to determine the effect of location in the exhaust plume on temperature.  The R packages `DiceDesign` [@DiceDesign] and `DiceEval` [@DiceEval] are explicitly for the design and analysis of computer experiments ([https://www.jstatsoft.org/article/view/v065i11/v65i11.pdf](https://www.jstatsoft.org/article/view/v065i11/v65i11.pdf)).  We can construct many space filling designs with DiceDesign, though the specific sphere-packing design from JMP is not supported in this package.  Let's construct a Latin Hypercube design for the space $x \in (0.05, 0.095)$ and $R \in (0, 0.062)$.
+Computational fluid dynamics (CFD) models of exhaust from a jet turbine was studied to determine the effect of location in the exhaust plume on temperature.  The R packages `DiceDesign` [@DiceDesign] and `DiceEval` [@DiceEval] are explicitly for the design and analysis of computer experiments ([https://www.jstatsoft.org/article/view/v065i11/v65i11.pdf](https://www.jstatsoft.org/article/view/v065i11/v65i11.pdf)).  We can construct many space filling designs with DiceDesign, though the specific sphere-packing design from JMP is not supported in this package.  Let's construct a Latin Hypercube design for the space $x \in (0.05, 0.095)$ and $R \in (0, 0.062)$:
 
 ```{r fig.align='center', fig.width=5, fig.height=5}
 library(DiceDesign)
@@ -133,14 +133,14 @@ df[,'R'] <- df[,'R'] * 0.062
 plot(df, main='LHS Design')
 ```
 
-Let us now move to the design in Table 11.16.  After fitting the model we will create a plot of the estimated mean response surface.
+\noindent Let us now move to the design in Table 11.16.  After fitting the model we will create a plot of the estimated mean response surface:
 
 ```{r}
 library(DiceEval)
 model <- modelFit(Table11.16[,c('x','R')], Table11.16[,'Temperature'], type='Kriging')
 ```
 
-\noindent The contour plot of the response surface is given below.  Compare this to Table 11.17's Contour Profiler result.
+\noindent The contour plot of the response surface is given below.  Compare this to Table 11.17's Contour Profiler result:
 ```{r fig.align='center', fig.width=5, fig.height=5}
 x.range <- range(Table11.16[,'x'])
 R.range <- range(Table11.16[,'R'])
@@ -159,16 +159,16 @@ contour(x, R, z, main='Gaussian Process Mean Surface')
 
 
 
-# Example 11.5 - A Three-Component Mixture
+# Example 11.5 --- A Three-Component Mixture
 
-The yarn elongation experiment investigates how `Polyethylene`, `Polystyrene`, and `Polypropylene` affect yarn elongation in kilograms of force applied.  A $\{3,2\}$ simplex lattice design was used to investigate this mixture experiment.  The package `mixexp` [@mixexp] provides a way to construct mixture experiments with R ([https://www.jstatsoft.org/index.php/jss/article/view/v072c02/v72c02.pdf](https://www.jstatsoft.org/index.php/jss/article/view/v072c02/v72c02.pdf)), and does the package `qualityTools` [@qualityTools] ([https://cran.r-project.org/web/packages/qualityTools/vignettes/qualityTools.pdf](https://cran.r-project.org/web/packages/qualityTools/vignettes/qualityTools.pdf)).  Analysis of mixture experiments can use the regular `lm` function.
+The yarn elongation experiment investigates how `Polyethylene`, `Polystyrene`, and `Polypropylene` affect yarn elongation in kilograms of force applied.  A $\{3,2\}$ simplex lattice design was used to investigate this mixture experiment.  The package `mixexp` [@mixexp] provides a way to construct mixture experiments with R ([https://www.jstatsoft.org/index.php/jss/article/view/v072c02/v72c02.pdf](https://www.jstatsoft.org/index.php/jss/article/view/v072c02/v72c02.pdf)), and does the package `qualityTools` [@qualityTools] ([https://cran.r-project.org/web/packages/qualityTools/vignettes/qualityTools.pdf](https://cran.r-project.org/web/packages/qualityTools/vignettes/qualityTools.pdf)).  Analysis of mixture experiments can use the regular `lm` function:
 
 ```{r message=FALSE}
 model <- lm(Elongation ~ -1 + (Polyethylene + Polystyrene + Polypropylene)^2, data=Table11.19)
 print(summary(model))
 ```
 
-\noindent Here, I use the `qualityTools` package to create a visualization of the mixture model.
+\noindent Here, I use the `qualityTools` package to create a visualization of the mixture model:
 ```{r some-block, message=FALSE, fig.align='center', fig.width=5.5, fig.height=5}
 library(qualityTools)
 
@@ -188,7 +188,7 @@ contourPlot3(A, B, C, Y, data=mdo, form='quadratic')
 
 Construction of a $D$-optimal constrained mixture experiment can be achieved using the `Xvert` function in the `mixexp` package to generate a host of candidate points, then using the `AlgDesign` package to select a $D$-optimal subset of these points.  Analysis of the optimal experiment in Example 11.6 proceeds as follows.  
 
-We cannot use the `rsm` package because it has trouble with dropping the intercept.  So instead we'll use a helper function in this package `pe.summary`.  First, we need to code the units.
+We cannot use the `rsm` package because it has trouble with dropping the intercept.  So instead we'll use a helper function in this package `pe.summary`.  First, we need to code the units:
 
 ```{r}
 df <- Table11.20
@@ -197,30 +197,30 @@ for(s in c('Monomer', 'Crosslinker', 'Resin')){
 }
 ```
 
-\noindent First, we examine the hardness model.
+\noindent Next, we examine the hardness model:
 ```{r message=FALSE}
 library(mixexp)
 
 model <- MixModel(df, "Hardness", c("Monomer", "Crosslinker", "Resin"), 2)
 ```
-\noindent Fitting the ANOVA table we find no lack of fit.
+\noindent Fitting the ANOVA table we find no lack of fit:
 ```{r}
 model <- aov(Hardness ~ -1 + (Monomer + Crosslinker + Resin)^2, data=df)
 pe.summary(model)
 ```
 
 
-\noindent Second, we examine the `Solids` model.
+\noindent Next, we examine the `Solids` model:
 ```{r}
 model <- MixModel(df, "Solids", c("Monomer", "Crosslinker", "Resin"), 2)
 ```
-\noindent Fitting the ANOVA table we find evidence of lack of fit.
+\noindent Fitting the ANOVA table we find evidence of lack of fit:
 ```{r}
 model <- aov(Solids ~ -1 + (Monomer + Crosslinker + Resin)^2, data=df)
 pe.summary(model)
 ```
 
-\noindent Since the quadratic model leaves no pure error we can't well estimate lack of fit.  So we'll stop here.
+\noindent Since the quadratic model leaves no pure error we can't estimate lack of fit, so we'll stop here.
 
 
 -------------

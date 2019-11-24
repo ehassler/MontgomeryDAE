@@ -3,7 +3,7 @@ title: "Robust Parameter Design and Process Robustness Studies"
 output: rmarkdown::html_vignette
 bibliography: bibliography.bib
 vignette: >
-  %\VignetteIndexEntry{Chapter 12 - Robust Parameter Design and Process Robustness Studies}
+  %\VignetteIndexEntry{Chapter 12 --- Robust Parameter Design and Process Robustness Studies}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -12,19 +12,20 @@ vignette: >
 source('_format.R')
 ```
 
+Chapter 12 in the text introduces robust parameter designs.  These designs allow the experimenter to investigate situations where not all of the factors can be easily controlled.    
 
 
 # Example 12.1
 
 
-Recall the filtration experiment from Example 6.2.  Assume that temperature (`z`) is difficult to control, while pressure (`x1`), concentration (`x2`), and stirring rate (`x3`) are easy to control. 
+Recall the filtration experiment from Example 6.2.  Assume that temperature (`z`) is difficult to control, while pressure (`x1`), concentration (`x2`), and stirring rate (`x3`) are easy to control. We fit the following:
 ```{r}
 df <- Table6.10
 colnames(df) <- c('z', 'x1', 'x2', 'x3', 'y', 'Block')
 model <- lm(y ~ z * (x1 + x2 + x3), data=df)
 print(summary(model))
 ```
-\noindent Since $x_1$ is not significant let's refit.
+\noindent Since $x_1$ is not significant let's refit:
 ```{r}
 model <- lm(y ~ z * (x2 + x3), data=df)
 print(summary(model))
@@ -39,7 +40,7 @@ Next, $\mathrm{Var}_z\bigl[y(\mathbf{x}, z)\bigr]$ is  $$
 [10.812 - 9.063 x_2 + 8.312 x_3]^2 \sigma_z^2 + \sigma^2 ~.
 $$
 
-Holding temperature $z=0$ we can plot the contours (blue) of the expected value, then plot the contours (orange) of the variance on top of that.
+Holding temperature $z=0$ we can plot the contours (blue) of the expected value, then plot the contours (orange) of the variance on top of that:
 ```{r fig.align='center', fig.width=5, fig.height=5}
 x2 <- seq(from=-1, to=1, length.out=100)
 x3 <- seq(from=-1, to=1, length.out=100)
@@ -69,7 +70,7 @@ contour(x2, x3, z.poe, col='orange', add=TRUE)
 
 # Example 12.2
 
-Consider the semiconductor manufacturing experiment data in Table 12.3.
+Consider the semiconductor manufacturing experiment data in Table 12.3. We fit the following model:
 ```{r}
 df <- Table12.3[,-1]
 model <- lm(y ~ (z1 + z2 + z3) * (x1 + x2) + x1:x2 + I(x1^2) + I(x2^2), data=df)

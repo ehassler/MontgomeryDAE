@@ -3,7 +3,7 @@ title: "Two-Level Fractional Factorial Designs"
 output: rmarkdown::html_vignette
 bibliography: bibliography.bib
 vignette: >
-  %\VignetteIndexEntry{Chapter 08 - Two-Level Fractional Factorial Designs}
+  %\VignetteIndexEntry{Chapter 08 --- Two-Level Fractional Factorial Designs}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -13,14 +13,14 @@ source('_format.R')
 ```
 
 
-Construction of full factorial designs is rather trivial, but construction of fractions of two-level designs can be tricky.  The package `FrF2` [@FrF2] has methods to create and visualize both regular fractions (where full confounding occurs between effects) and non-regular fractions (where partial aliasing occurs).  The function `FrF2` is very flexible in how you can request a design.  Below, I have requested a 4 factor resolution III design.
+Construction of full factorial designs is rather trivial, but construction of fractions of two-level designs can be tricky.  The package `FrF2` [@FrF2] has methods to create and visualize both regular fractions (where full confounding occurs between effects) and non-regular fractions (where partial aliasing occurs).  The function `FrF2` is very flexible in how you can request a design.  Below, I have requested a four-factor resolution III design:
 
 ```{r message=FALSE}
 library(FrF2)
 
 FrF2(nfactors=4, resolution=3)
 ```
-\noindent Next, I request a design on 5 factors using 8 runs.
+\noindent Next, I request a design on five factors using eight runs:
 ```{r}
 FrF2(nfactors=5, nruns=8)
 ```
@@ -30,13 +30,13 @@ FrF2(nfactors=5, nruns=8)
 # Example 8.1
 
 
-We return again to the filtration rate experiment, except this time we'll run it as a $2^{4-1}_{\mathrm{IV}}$ design with `D` aliased with the `A:B:C` interaction (see Table 8.3).
+We return again to the filtration rate experiment, except this time we'll run it as a $2^{4-1}_{\mathrm{IV}}$ design with `D` aliased with the `A:B:C` interaction (see Table 8.3):
 ```{r}
 model <-lm(FiltrationRate ~ A + B + C + D + A:B + A:C + A:D, data=Table8.3)
 print(summary(model))
 ```
 
-\noindent Since effects A, C, and D are large we remove B and the A:B interaction.
+\noindent Since effects A, C, and D are large we remove B and the A:B interaction:
 
 ```{r}
 model <-lm(FiltrationRate ~ A + C + D + A:C + A:D, data=Table8.3)
@@ -51,7 +51,7 @@ print(summary(model))
 # Example 8.2
 
 
-An integrated circuit manufacturing process was studied to understand how aperture setting (`A`), exposure time (`B`), develop time (`C`), and mask dimension (`D`) effect yield.  The design used was a $2^{5-1}$ design with `E` aliased to `ABCD`.
+An integrated circuit manufacturing process was studied to understand how aperture setting (`A`), exposure time (`B`), develop time (`C`), and mask dimension (`D`) affected yield.  The design used was a $2^{5-1}$ design with `E` aliased to the `A:B:C:D` interaction:
 ```{r message=FALSE}
 model <- aov(Yield ~ . * ., data=Table8.5)
 model.ss <- anova(model)[['Sum Sq']]
@@ -64,20 +64,20 @@ effect.estimates <- data.frame(
 ```{r echo=FALSE}
 kable(effect.estimates) %>% kable_styling()
 ```
-\noindent The terms `A`, `B`, `C` and `A:B` have large magnitude, but we'll verify that they look like active effects with a half-normal probability plot.
+\noindent The terms `A`, `B`, `C` and `A:B` have large magnitude, but we'll verify that they look like active effects with a half-normal probability plot:
 ```{r fig.align='center', fig.height=5, fig.width=5, message=FALSE}
 library(DoE.base)
 vals <- halfnormal(model)
 vals$signif
 ```
 
-\noindent Next, we fit the reduced model.
+\noindent Next, we fit the reduced model:
 ```{r}
 model <- aov(Yield ~ A + B + C + A:B, data=Table8.5)
 print(summary(model))
 ```
 
-\noindent Checking the diagnostic plots, it looks like there's no strong evidence our assumptions have been violated.
+\noindent Checking the diagnostic plots, it looks like there's no strong evidence our assumptions have been violated:
 ```{r fig.align='center', fig.width=8, fig.height=4}
 op <- par(mfrow=c(1,2))
 qqnorm(resid(model), main='Normal Probability Plot')
@@ -94,24 +94,24 @@ par(op)
 ## Example 8.4
 
 
-A common defect that can occur in injection molding is excessive shrinkage.  An investigation into how mold temperature (`A`), screw speed (`B`), holding time (`C`), cycle time (`D`), gate size (`E`), and holding pressure (`F`) to better understand how to control shrinkage was performed.  A $2^{6-2}_\mathrm{IV}$ design was used with `E` aliased to `ABC` and `F` aliased to `BCD`. 
+A common defect that can occur in injection molding is excessive shrinkage.  An investigation into how mold temperature (`A`), screw speed (`B`), holding time (`C`), cycle time (`D`), gate size (`E`), and holding pressure (`F`) affect shrinkage so that shrinkage can be better controlled.  A $2^{6-2}_\mathrm{IV}$ design was used with `E` aliased to `ABC` and `F` aliased to `B:C:D`:
 ```{r}
 model <- lm(Shrinkage ~ . * ., data=Table8.10)
 print(summary(model))
 ```
-\noindent The only main effects that are active are `A` and `B`.  The `A:B` interaction is large, but it is aliased with `CE`.  Since neither `C` nor `E` is active we'll assume it's the `A:B` interaction that's active.  Compare this to a half-normal probability plot.
+\noindent The only main effects that are active are `A` and `B`.  The `A:B` interaction is large, but it is aliased with `C:E`.  Since neither `C` nor `E` is active we'll assume it's the `A:B` interaction that's active.  Compare this to a half-normal probability plot:
 ```{r fig.align='center', fig.width=5, fig.height=5}
 halfnormal(model)
 ```
 
-\noindent Because of this we decide to keep A, B, and A:B. 
+\noindent Because of this we decide to keep `A`, `B`, and the `A:B` interaction:
 
 ```{r}
 model <- lm(Shrinkage ~ A + B + A:B, data=Table8.10)
 print(summary(model))
 ```
 
-\noindent Next let's check the normal probability plot and the residual versus holding time.
+\noindent Next, let's check the normal probability plot and the residual versus holding time:
 
 ```{r fig.align='center', fig.width=8, fig.height=4}
 op <- par(mfrow=c(1,2))
@@ -121,7 +121,7 @@ plot(x=Table8.10$C, y=resid(model), main='C vs. Residual')
 par(op)
 ```
 
-\noindent It looks like the variance is much larger at the longer holding time (`C`) than at the smaller holding time.  Next, we model the dispersion.
+\noindent It looks like the variance is much larger at the longer holding time (`C`) than at the smaller holding time.  Next, we model the dispersion:
 
 ```{r fig.align='center', fig.width=5, fig.height=5}
 ix <- Table8.10$C == 1
@@ -141,7 +141,7 @@ vals <- halfnormal(Fi.star)
 vals
 ```
 
-\noindent We can model dispersion using only C.  
+\noindent The plot suggests that we can model dispersion using only `C`.  
 
 
 ------------
@@ -160,7 +160,7 @@ A set of eight factors were selected to model the deviation from profile of the 
  * `G` - Fixture height
  * `H` - Feed rate
 
-In addition, we are to block on spindle, so we choose to use the `E:H` interaction and the `A:B:E` interaction chain to represent the four blocks.  Our analysis of the $2^{8-3}_\mathrm{IV}$ design in Table 8.16 proceeds as follows.  
+In addition, we are to block on spindle, so we choose to use the `E:H` interaction and the `A:B:E` interaction chain to represent the four blocks.  Our analysis of the $2^{8-3}_\mathrm{IV}$ design in Table 8.16 proceeds as follows:  
 
 ```{r}
 model <- aov(log(Deviation) ~ Error(Block) + (A + B + C + D + E + F + G + H)^3, data=Table8.16)
@@ -182,14 +182,14 @@ kable(effect.estimates) %>% kable_styling()
 
 
 
-Process knowledge helps us to decide A, B, D, and A:D should be included in the analysis. The `halfnormal` plot does not like `aov` models with error terms, so let's remodel it and just be mindful of what factors represent blocks.
+Process knowledge helps us to decide `A`, `B`, `D`, and `A:D` should be included in the analysis. The `halfnormal` plot does not like `aov` models with error terms, so let's remodel it and just be mindful of what factors represent blocks:
 ```{r fig.align='center', fig.width=5, fig.height=5}
 model <- aov(log(Deviation) ~ (A + B + C + D + E + F + G + H)^3, data=Table8.16)
 vals <- halfnormal(model)
 vals$signif
 ```
 
-\noindent The plot seems to confirm that `A`, `B`, `D`, and `A:D` are probably active.  
+\noindent The plot seems to confirm that `A`, `B`, `D`, and `A:D` are probably active.  We confirm this with the following ANOVA table:  
 
 ```{r}
 model <- aov(log(Deviation) ~ Error(Block) + A + B + D + A:D, data=Table8.16)
@@ -206,14 +206,14 @@ print(summary(model))
 # Example 8.7
 
 
-An experiment to understand how eye focus time is affected by acuity or sharpness of vision (`A`), distance from target to eye (`B`), target shape (`C`), illumination level (`D`), target size (`E`), target density (`F`), and subject (`G`) is in Table 8.21. The design is a $2^{7-4}_\mathrm{III}$ fractional factorial.  First, let's select the candidate active main effects.
+An experiment to understand how eye focus time is affected by acuity or sharpness of vision (`A`), distance from target to eye (`B`), target shape (`C`), illumination level (`D`), target size (`E`), target density (`F`), and subject (`G`) is in Table 8.21. The design is a $2^{7-4}_\mathrm{III}$ fractional factorial.  First, let's select the candidate active main effects:
 
 ```{r}
 model <- lm(Time ~ ., data=Table8.21)
 print(2*coef(model)[-1])
 ```
 
-\noindent As described in the text, when we project down to just `A`, `B`, and `D` we don't get a full factorial in those main effects, but instead we get a replicated $2^{3-1}$.  To disentangle the aliases we need to do a foldover as described in Table 8.22. 
+\noindent As described in the text, when we project down to just `A`, `B`, and `D` we don't get a full factorial in those main effects, but instead we get a replicated $2^{3-1}$.  To disentangle the aliases we need to do a foldover as described in Table 8.22:
 
 ```{r}
 df <- rbind(Table8.21, Table8.22)
@@ -231,9 +231,9 @@ summary(model)
 
 Example 8.8 uses a non-regular fraction called a Plackett-Burman design.  These designs have partial aliasing, and we can fit them with model selection procedures such as stepwise regression.
 
-The text analyzes this with stepwise regression based on $p$-values requiring a $p$-value less than 0.1 to enter and a $p$-value greater than 0.25 to leave.  R's `MASS` package provides for stepwise selection based on AIC-like criteria, but does not support $p$-values directly.  While some other R packages do support $p$-value based stepwise regression they fail to support strong or weak heredity as found in JMP and in `stepAIC` in `MASS`.  
+The text analyzes this with stepwise regression based on $p$-values requiring a $p$-value less than 0.1 to enter and a $p$-value greater than 0.25 to leave.  R's `MASS` package provides stepwise selection based on AIC-like criteria, but does not support $p$-values directly.  While some other R packages do support $p$-value based stepwise regression they fail to support strong or weak heredity as found in JMP and in `stepAIC` in `MASS`.  
 
-For convenience, this package has included `p.stepwise` which does stepwise regression under strong heredity assumptions, e.g. `X1:X2` can only enter the model if `X1` and `X2` are in the model, and `X1` can only leave the model if no interaction involving it is in the model.
+For convenience, this package has included `p.stepwise` which does stepwise regression under strong heredity assumptions, e.g. `X1:X2` can only enter the model if `X1` and `X2` are in the model, and `X1` can only leave the model if no interaction involving it is in the model.  The results of this model fitting procedure are given below:
 
 ```{r}
 alpha.to.enter <- 0.10
@@ -259,13 +259,13 @@ Section 8.7.2. analyzes an experiment where six factors were analyzed to determi
  * Resist viscosity (`E`)
  * Exhaust rate (`F`)
  
-\noindent We begin with the half-normal probability plot for the data in Table 8.31.
+\noindent We begin with the half-normal probability plot for the data in Table 8.31:
 ```{r fig.align='center', fig.width=5, fig.height=5, message=FALSE}
 model <- lm(Thickness ~ . * ., data=Table8.31)
 vals <- halfnormal(model)
 vals$signif
 ```
-\noindent This suggests that either A:B or C:E is large because the two are aliased in our original design.  To address this we do a complete fold-over on A, as given in Table 8.32.
+\noindent This suggests that either `A:B` or `C:E` is large because the two are aliased in our original design.  To address this we do a complete fold-over on `A`, as given in Table 8.32:
 
 ```{r fig.align='center', fig.width=5, fig.height=5, message=FALSE}
 model <- lm(Thickness ~ Blocks + (A + B + C + D + E + F)^2, data=Table8.32)
@@ -273,7 +273,7 @@ vals <- halfnormal(model)
 vals$signif
 ```
 
-Another option would have been to do a partial fold-over selecting the runs where A is at its low level.  This design is given in Table 8.33, but is the same as Table 8.32 where block 2 has A at the low level.
+Another option would have been to do a partial fold-over selecting the runs where `A` is at its low level.  This design is given in Table 8.33, but is the same as Table 8.32 where block 2 has `A` at the low level:
 
 ```{r fig.align='center', fig.width=5, fig.height=5, message=FALSE}
 ix <- Table8.32[,'Blocks'] == 1 | (Table8.32[,'Blocks'] == 2 & Table8.32[,'A'] == -1)
@@ -283,14 +283,14 @@ vals <- halfnormal(model, ME.partial=TRUE)
 vals$signif
 ```
 
-\noindent Note that A:B is now in the model, as is a term for the second block.  We may ignore this second term as it was necessary to include Block as a main effect to use the `halfnormal` function.
+\noindent Note that `A:B` is now in the model, as is a term for the second block.  We may ignore this second term as it was necessary to include Block as a main effect to use the `halfnormal` function.
 
 ```{r}
 model <- aov(Thickness ~ Error(Blocks) + (A + B + C + D + E + F)^2, data=Table8.33)
 print(summary(model))
 ```
 
-\noindent Though the half-normal result differs from the text, the ANOVA table supports our decision to include A:B in the model.
+\noindent Though the half-normal result differs from the text, the ANOVA table supports our decision to include `A:B` in the model.
 
 
 ---------------------

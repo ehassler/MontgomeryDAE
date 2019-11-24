@@ -1,3 +1,3 @@
 # R Package for Montgomery's Design and Analysis of Experiments 10th Ed.
 
-TODO: write this.
+This package provides data sets from the text and some worked examples using R as vignettes.
