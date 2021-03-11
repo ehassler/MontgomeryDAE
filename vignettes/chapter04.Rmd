@@ -1,9 +1,9 @@
 ---
-title: "Randomized Blocks, Latin Squares, and Related Designs"
+title: "4. Randomized Blocks, Latin Squares, and Related Designs"
 output: rmarkdown::html_vignette
 bibliography: bibliography.bib
 vignette: >
-  %\VignetteIndexEntry{Chapter 04 --- Randomized Blocks, Latin Squares, and Related Designs}
+  %\VignetteIndexEntry{4. Randomized Blocks, Latin Squares, and Related Designs}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

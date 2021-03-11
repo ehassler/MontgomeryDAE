@@ -1,9 +1,9 @@
 ---
-title: "Simple Comparative Experiments"
+title: "2. Simple Comparative Experiments"
 output: rmarkdown::html_vignette
 bibliography: bibliography.bib
 vignette: >
-  %\VignetteIndexEntry{Chapter 02 --- Simple Comparative Experiments}
+  %\VignetteIndexEntry{2. Simple Comparative Experiments}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

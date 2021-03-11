@@ -1,9 +1,9 @@
 ---
-title: "Experiments with a Single Factor: The Analysis of Variance"
+title: "3. Experiments with a Single Factor: The Analysis of Variance"
 output: rmarkdown::html_vignette
 bibliography: bibliography.bib
 vignette: >
-  %\VignetteIndexEntry{Chapter 03 --- Experiments with a Single Factors: The Analysis of Variance}
+  %\VignetteIndexEntry{3. Experiments with a Single Factor: The Analysis of Variance}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

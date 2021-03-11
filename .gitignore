@@ -38,3 +38,5 @@ vignettes/*.pdf
 /MontgomeryDAE
 .Rproj.user
 
+doc
+Meta

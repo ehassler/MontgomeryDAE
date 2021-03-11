@@ -1,9 +1,9 @@
 ---
-title: "Nested and Split-Plot Designs"
+title: "14. Nested and Split-Plot Designs"
 output: rmarkdown::html_vignette
 bibliography: bibliography.bib
 vignette: >
-  %\VignetteIndexEntry{Chapter 14 --- Nested and Split-Plot Designs}
+  %\VignetteIndexEntry{14. Nested and Split-Plot Designs}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

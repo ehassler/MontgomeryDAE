@@ -1,9 +1,9 @@
 ---
-title: "Other Design and Analysis Topics"
+title: "15. Other Design and Analysis Topics"
 output: rmarkdown::html_vignette
 bibliography: bibliography.bib
 vignette: >
-  %\VignetteIndexEntry{Chapter 15 --- Other Design and Analysis Topics}
+  %\VignetteIndexEntry{15. Other Design and Analysis Topics}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -12,7 +12,7 @@ vignette: >
 source('_format.R')
 ```
 
-Chapter 15 in the text and the associated suplemental material covers several important methods and design concerns.  This includes repeated measures, normality-inducing transformations, unbalanced data problems, and analysis of covariance.  
+Chapter 15 in the text and the associated supplemental material covers several important methods and design concerns.  This includes repeated measures, normality-inducing transformations, unbalanced data problems, and analysis of covariance.  
 
 
 # Example 15.1 --- Box-Cox Transformation

@@ -1,9 +1,9 @@
 ---
-title: "Additional Topics for Factorial and Fractional Factorial Designs"
+title: "9. Additional Designs and Analysis Topics for Factorial and Fractional Factorial Designs"
 output: rmarkdown::html_vignette
 bibliography: bibliography.bib
 vignette: >
-  %\VignetteIndexEntry{Chapter 09 --- Additional Designs and Analysis Topics for Factorial and Fractional Factorial Designs}
+  %\VignetteIndexEntry{9. Additional Designs and Analysis Topics for Factorial and Fractional Factorial Designs}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

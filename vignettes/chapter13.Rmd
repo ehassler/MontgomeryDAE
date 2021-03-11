@@ -1,9 +1,9 @@
 ---
-title: "Experiments with Random Factors"
+title: "13. Experiments with Random Factors"
 output: rmarkdown::html_vignette
 bibliography: bibliography.bib
 vignette: >
-  %\VignetteIndexEntry{Chapter 13 --- Experiments with Random Factors}
+  %\VignetteIndexEntry{13. Experiments with Random Factors}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
