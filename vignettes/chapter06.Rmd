@@ -1,9 +1,9 @@
 ---
-title: "2^k^ Factorial Design"
+title: "6. Two-Level Factorial Designs"
 output: rmarkdown::html_vignette
 bibliography: bibliography.bib
 vignette: >
-  %\VignetteIndexEntry{Chapter 06 --- Two-Level Factorial Designs}
+  %\VignetteIndexEntry{6. Two-Level Factorial Designs}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -43,7 +43,11 @@ fac2(4)
 # Section 6.2
 
 
-Section 6.2 describes an experiment where the experimenter seeks to optimize yield by varying reactant concentration (`A`) and catalyst amount (`B`).  I transcribed the data given in Figure 6.1, and this produces the following model:
+Section 6.2 describes an experiment where the experimenter seeks to optimize yield by varying reactant concentration (`A`) and catalyst amount (`B`).  I transcribed the data given in Figure 6.1.
+```{r}
+str(Figure6.1)
+```
+This produces the following model:
 ```{r}
 model <- aov(Yield ~ A*B, data=Figure6.1)
 summary(model)

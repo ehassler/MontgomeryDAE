@@ -1,9 +1,9 @@
 ---
-title: "Introduction to Factorial Designs"
+title: "5. Introduction to Factorial Designs"
 output: rmarkdown::html_vignette
 bibliography: bibliography.bib
 vignette: >
-  %\VignetteIndexEntry{Chapter 05 --- Introduction to Factorial Designs}
+  %\VignetteIndexEntry{5. Introduction to Factorial Designs}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -191,6 +191,7 @@ We return again the the battery life experiment of Example 5.1, and analyze the 
 ```{r message=FALSE}
 df <- Table5.1
 df$Temperature <- (df$Temperature - 70) / 55
+df$MaterialType <- factor(df$MaterialType)
 contrasts(df$MaterialType) <- as.matrix(cbind(c(1,0,-1), c(0,1,-1)))
 model <- lm(BatteryLife ~ Temperature + MaterialType + I(Temperature^2) + Temperature:MaterialType + I(Temperature^2):MaterialType, data=df)
 anova(model)

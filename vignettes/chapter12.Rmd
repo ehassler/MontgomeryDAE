@@ -1,9 +1,9 @@
 ---
-title: "Robust Parameter Design and Process Robustness Studies"
+title: "12. Robust Parameter Design and Process Robustness Studies"
 output: rmarkdown::html_vignette
 bibliography: bibliography.bib
 vignette: >
-  %\VignetteIndexEntry{Chapter 12 --- Robust Parameter Design and Process Robustness Studies}
+  %\VignetteIndexEntry{12. Robust Parameter Design and Process Robustness Studies}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

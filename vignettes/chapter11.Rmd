@@ -1,9 +1,9 @@
 ---
-title: "Response Surface Methods and Designs"
+title: "11. Response Surface Methods and Designs"
 output: rmarkdown::html_vignette
 bibliography: bibliography.bib
 vignette: >
-  %\VignetteIndexEntry{Chapter 11 --- Response Surface Methods and Designs}
+  %\VignetteIndexEntry{11. Response Surface Methods and Designs}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -161,7 +161,9 @@ contour(x, R, z, main='Gaussian Process Mean Surface')
 
 # Example 11.5 --- A Three-Component Mixture
 
-The yarn elongation experiment investigates how `Polyethylene`, `Polystyrene`, and `Polypropylene` affect yarn elongation in kilograms of force applied.  A $\{3,2\}$ simplex lattice design was used to investigate this mixture experiment.  The package `mixexp` [@mixexp] provides a way to construct mixture experiments with R ([https://www.jstatsoft.org/index.php/jss/article/view/v072c02/v72c02.pdf](https://www.jstatsoft.org/index.php/jss/article/view/v072c02/v72c02.pdf)), and does the package `qualityTools` [@qualityTools] ([https://cran.r-project.org/web/packages/qualityTools/vignettes/qualityTools.pdf](https://cran.r-project.org/web/packages/qualityTools/vignettes/qualityTools.pdf)).  Analysis of mixture experiments can use the regular `lm` function:
+The yarn elongation experiment investigates how `Polyethylene`, `Polystyrene`, and `Polypropylene` affect yarn elongation in kilograms of force applied.  A $\{3,2\}$ simplex lattice design was used to investigate this mixture experiment.  The package `mixexp` [@mixexp] provides a way to construct mixture experiments with R ([https://www.jstatsoft.org/index.php/jss/article/view/v072c02/v72c02.pdf](https://www.jstatsoft.org/index.php/jss/article/view/v072c02/v72c02.pdf)), and does the package `qualityTools` [@qualityTools] ([ https://CRAN.R-project.org/package=qualityTools](https://CRAN.R-project.org/package=qualityTools)).  Analysis of mixture experiments can use the regular `lm` function:
+
+_Note_: `qualityTools` was recently removed from CRAN.  You can install the last hosted version by downloading it manually from [https://cran.r-project.org/src/contrib/Archive/qualityTools/qualityTools_1.55.tar.gz](https://cran.r-project.org/src/contrib/Archive/qualityTools/qualityTools_1.55.tar.gz).
 
 ```{r message=FALSE}
 model <- lm(Elongation ~ -1 + (Polyethylene + Polystyrene + Polypropylene)^2, data=Table11.19)

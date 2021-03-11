@@ -1,9 +1,9 @@
 ---
-title: "Two-Level Fractional Factorial Designs"
+title: "8. Two-Level Fractional Factorial Designs"
 output: rmarkdown::html_vignette
 bibliography: bibliography.bib
 vignette: >
-  %\VignetteIndexEntry{Chapter 08 --- Two-Level Fractional Factorial Designs}
+  %\VignetteIndexEntry{8. Two-Level Fractional Factorial Designs}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

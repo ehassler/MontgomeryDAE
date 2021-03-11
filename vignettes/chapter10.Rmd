@@ -1,9 +1,9 @@
 ---
-title: "Fitting Regression Models"
+title: "10. Fitting Regression Models"
 output: rmarkdown::html_vignette
 bibliography: bibliography.bib
 vignette: >
-  %\VignetteIndexEntry{Chapter 10 --- Fitting Regression Models}
+  %\VignetteIndexEntry{10. Fitting Regression Models}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -13,7 +13,7 @@ source('_format.R')
 ```
 
 
-Chapter 10 of the text discusses fitting regression models.  Thankfully, R's support for such models is very good.  Again, we must be carefult to set the contrasts of unordered factors to "contr.sum" as follows:
+Chapter 10 of the text discusses fitting regression models.  Thankfully, R's support for such models is very good.  Again, we must be careful to set the contrasts of unordered factors to "contr.sum" as follows:
 ```{r}
 options(contrasts=c(unordered='contr.sum', ordered='contr.poly'))
 ```
